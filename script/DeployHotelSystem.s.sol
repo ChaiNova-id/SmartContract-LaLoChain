@@ -2,7 +2,7 @@
 pragma solidity ^0.8.20;
 
 import "forge-std/Script.sol";
-import "../src/RevenueTokenFactory.sol";
+import "../src/LaLoTokenFactory.sol";
 import "../src/HotelRegistry.sol";
 
 contract DeployHotelSystem is Script {
@@ -12,12 +12,12 @@ contract DeployHotelSystem is Script {
         vm.startBroadcast();
 
         // Deploy factory
-        RevenueTokenFactory factory = new RevenueTokenFactory();
+        LaLoTokenFactory factory = new LaLoTokenFactory();
 
         // Deploy HotelRegistry with factory address
         HotelRegistry registry = new HotelRegistry(address(factory));
 
-        console.log("RevenueTokenFactory deployed at:", address(factory));
+        console.log("LaLoTokenFactory deployed at:", address(factory));
         console.log("HotelRegistry deployed at:", address(registry));
 
         vm.stopBroadcast();
