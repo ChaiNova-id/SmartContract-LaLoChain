@@ -9,7 +9,7 @@ interface ILaLoTokenFactory {
     function createToken(uint256 hotelId) external returns (address);
 }
 
-contract HotelRegistry is AccessControl {
+contract LaLoHotel is AccessControl {
     ILaLoTokenFactory public tokenFactory;
 
     constructor(address _tokenFactory) {
