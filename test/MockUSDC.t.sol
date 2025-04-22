@@ -11,7 +11,7 @@ contract MockUSDCTest is Test {
         usdc = new MockUSDC();
     }
 
-    function testInitialSupply() public {
+    function testInitialSupply() public view {
         assertEq(usdc.balanceOf(address(this)), 1_000_000 * 10 ** 6);
         assertEq(usdc.decimals(), 6);
     }
