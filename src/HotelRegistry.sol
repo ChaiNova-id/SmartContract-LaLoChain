@@ -2,13 +2,12 @@
 pragma solidity ^0.8.20;
 
 import "@openzeppelin/contracts/access/AccessControl.sol";
-import "@openzeppelin/contracts/security/Pausable.sol";
 
 interface IRevenueTokenFactory {
     function createToken(uint256 hotelId) external returns (address);
 }
 
-contract HotelRegistry is AccessControl, Pausable {
+contract HotelRegistry is AccessControl {
     bytes32 public constant OVERWRITER_ROLE = keccak256("OVERWRITER_ROLE");
 
     enum Status { Pending, Approved, Rejected }
@@ -44,7 +43,7 @@ contract HotelRegistry is AccessControl, Pausable {
         tokenFactory = IRevenueTokenFactory(_tokenFactory);
     }
 
-    function registerHotel() external payable whenNotPaused {
+    function registerHotel() external payable {
         if (msg.value < requiredStake) {
             revert InsufficientStake(msg.value, requiredStake);
         }
@@ -98,7 +97,7 @@ contract HotelRegistry is AccessControl, Pausable {
         return hotels[hotelId].status;
     }
 
-    function bookHotel(uint256 hotelId) external payable whenNotPaused {
+    function bookHotel(uint256 hotelId) external payable {
         Hotel storage h = hotels[hotelId];
         if (h.status != Status.Approved) {
             revert HotelNotApproved(hotelId);
@@ -108,13 +107,5 @@ contract HotelRegistry is AccessControl, Pausable {
         }
 
         emit HotelBooked(hotelId, msg.sender, msg.value);
-    }
-
-    function pauseContract() external onlyRole(OVERWRITER_ROLE) {
-        _pause();
-    }
-
-    function unpauseContract() external onlyRole(OVERWRITER_ROLE) {
-        _unpause();
     }
 }
