@@ -8,8 +8,12 @@ contract RevenueTokenFactory {
 
     event RevenueTokenCreated(uint256 indexed hotelId, address tokenAddress);
 
+    error TokenAlreadyExists(uint256 hotelId);
+
     function createToken(uint256 hotelId) external returns (address) {
-        require(hotelTokens[hotelId] == address(0), "Token already exists");
+        if (hotelTokens[hotelId] != address(0)) {
+            revert TokenAlreadyExists(hotelId);
+        }
 
         string memory name = string(abi.encodePacked("Hotel-", uint2str(hotelId), " Revenue Token"));
         string memory symbol = string(abi.encodePacked("HRT", uint2str(hotelId)));

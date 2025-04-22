@@ -19,6 +19,13 @@ contract HotelRegistry is AccessControl, Pausable {
         Status status;
     }
 
+    error InsufficientStake(uint256 sent, uint256 required);
+    error HotelNotPending(uint256 hotelId);
+    error HotelNotRejected(uint256 hotelId);
+    error NotHotelOwner(address caller);
+    error HotelNotApproved(uint256 hotelId);
+    error ZeroValueBooking();
+
     uint256 public hotelCount;
     mapping(uint256 => Hotel) public hotels;
     mapping(uint256 => address) public hotelToToken;
@@ -38,7 +45,9 @@ contract HotelRegistry is AccessControl, Pausable {
     }
 
     function registerHotel() external payable whenNotPaused {
-        require(msg.value >= requiredStake, "Insufficient stake");
+        if (msg.value < requiredStake) {
+            revert InsufficientStake(msg.value, requiredStake);
+        }
 
         uint256 hotelId = hotelCount++;
         hotels[hotelId] = Hotel(msg.sender, msg.value, Status.Pending);
@@ -48,7 +57,9 @@ contract HotelRegistry is AccessControl, Pausable {
 
     function approveHotel(uint256 hotelId) external onlyRole(OVERWRITER_ROLE) {
         Hotel storage h = hotels[hotelId];
-        require(h.status == Status.Pending, "Not pending");
+        if (h.status != Status.Pending) {
+            revert HotelNotPending(hotelId);
+        }
 
         h.status = Status.Approved;
 
@@ -60,7 +71,9 @@ contract HotelRegistry is AccessControl, Pausable {
 
     function rejectHotel(uint256 hotelId) external onlyRole(OVERWRITER_ROLE) {
         Hotel storage h = hotels[hotelId];
-        require(h.status == Status.Pending, "Not pending");
+        if (h.status != Status.Pending) {
+            revert HotelNotPending(hotelId);
+        }
 
         h.status = Status.Rejected;
 
@@ -69,8 +82,12 @@ contract HotelRegistry is AccessControl, Pausable {
 
     function withdrawStake(uint256 hotelId) external {
         Hotel storage h = hotels[hotelId];
-        require(h.status == Status.Rejected, "Not rejected");
-        require(msg.sender == h.owner, "Not hotel owner");
+        if (h.status != Status.Rejected) {
+            revert HotelNotRejected(hotelId);
+        }
+        if (msg.sender != h.owner) {
+            revert NotHotelOwner(msg.sender);
+        }
 
         uint256 stake = h.stake;
         h.stake = 0;
@@ -83,8 +100,12 @@ contract HotelRegistry is AccessControl, Pausable {
 
     function bookHotel(uint256 hotelId) external payable whenNotPaused {
         Hotel storage h = hotels[hotelId];
-        require(h.status == Status.Approved, "Hotel not approved");
-        require(msg.value > 0, "Must send ETH");
+        if (h.status != Status.Approved) {
+            revert HotelNotApproved(hotelId);
+        }
+        if (msg.value == 0) {
+            revert ZeroValueBooking();
+        }
 
         emit HotelBooked(hotelId, msg.sender, msg.value);
     }
