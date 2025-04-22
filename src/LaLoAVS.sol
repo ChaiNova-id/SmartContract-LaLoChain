@@ -16,7 +16,7 @@ contract LaLoTokenAVS {
     factory = LaLoTokenFactory(_factory);
   }
 
-   function underwrite(address token,uint256 amount) public {
+   function underwrite(address token, uint256 amount) public {
       if(!factory.tokens(token)) revert NotRegisteredToken();
       address underwriter = msg.sender;
       underwritingAmounts[token][underwriter] += amount;

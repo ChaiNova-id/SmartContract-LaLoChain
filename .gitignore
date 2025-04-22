@@ -12,3 +12,8 @@ docs/
 
 # Dotenv file
 .env
+
+# Remix
+artifacts/
+.deps
+.states
