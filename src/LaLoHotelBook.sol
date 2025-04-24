@@ -100,13 +100,6 @@ contract LaLoHotelBook is Ownable {
         return roomBookings[roomId];
     }
 
-    // Function to withdraw earnings to a specified address
-    function withdrawEarnings(address to, uint256 amount) external onlyOwner {
-        if (!usdcToken.transfer(to, amount)) {
-            revert WithdrawFailed(); // Use the custom error
-        }
-    }
-
     function getVaultAddress(uint256 hotelId) external view returns (address) {
         if (!hotelRegistry.isHotelRegistered(hotelId)) {
             revert HotelNotRegistered();
