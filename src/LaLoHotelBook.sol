@@ -88,16 +88,11 @@ contract LaLoHotelBook is Ownable {
         }
 
         // Transfer booking fee to Vault
-        if (!usdcToken.transferFrom(msg.sender, vault, totalCost)) {
-            revert PaymentFailed();
-        }
+        LaLoVault(vault).depositYield(msg.sender, totalCost);
 
         // Record the booking
         roomBookings[roomId].push(Booking(msg.sender, nights, totalCost, block.timestamp));
         emit RoomBooked(roomId, msg.sender, nights, totalCost);
-
-        // Trigger deposit in Vault
-        LaLoVault(vault).depositYield(totalCost);
     }
 
     // Function to get all bookings for a specific room
@@ -110,5 +105,13 @@ contract LaLoHotelBook is Ownable {
         if (!usdcToken.transfer(to, amount)) {
             revert WithdrawFailed(); // Use the custom error
         }
+    }
+
+    function getVaultAddress(uint256 hotelId) external view returns (address) {
+        if (!hotelRegistry.isHotelRegistered(hotelId)) {
+            revert HotelNotRegistered();
+        }
+
+        return hotelRegistry.getHotel(hotelId).vaultAddress;
     }
 }

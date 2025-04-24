@@ -7,6 +7,8 @@ import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 error NotBooker(address from);
 error BookerAlreadySet();
 error InsufficientHotelToken();
+error TransferFailed();
+error UnauthorizedBooker();
 
 contract LaLoVault is ERC20 {
     IERC20 public immutable usdcToken; // mUSDC
@@ -33,8 +35,12 @@ contract LaLoVault is ERC20 {
         booker = _booker;
     }
 
-    function depositYield(uint256 amount) external onlyBooker {
-        usdcToken.transferFrom(msg.sender, address(this), amount);
+    function depositYield(address sender, uint256 amount) external onlyBooker {
+        // Check if the transfer succeeds
+        bool success = usdcToken.transferFrom(sender, address(this), amount);
+       if (!success) {
+            revert TransferFailed(); // Custom error for transfer failure
+        }
     }
 
     function withdraw(uint256 shares) external {
