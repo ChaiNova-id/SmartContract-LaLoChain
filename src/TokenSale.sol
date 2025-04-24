@@ -6,6 +6,7 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 
 error InsufficientAmount(uint256 amount);
 error TransferFailed(address from, address to, uint256 amount);
+event TokenPurchase(address indexed buyer, uint256 usdcAmount, uint256 laloAmount);
 
 contract TokenSale is Ownable {
     IERC20 public laloToken;
