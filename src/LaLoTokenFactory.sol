@@ -4,7 +4,6 @@ pragma solidity ^0.8.13;
 import {LaLoToken} from "./LaLoToken.sol";
 
 contract LaLoTokenFactory {
-
     // Mapping to track deployed tokens
     mapping(address => bool) public tokens;
 

@@ -4,11 +4,11 @@ pragma solidity ^0.8.13;
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
-error InsufficientAmount(uint256 amount);
-error TransferFailed(address from, address to, uint256 amount);
-event TokenPurchase(address indexed buyer, uint256 usdcAmount, uint256 laloAmount);
-
 contract TokenSale is Ownable {
+    error InsufficientAmount(uint256 amount);
+    error TransferFailed(address from, address to, uint256 amount);
+    event TokenPurchase(address indexed buyer, uint256 usdcAmount, uint256 laloAmount);
+
     IERC20 public laloToken;
     IERC20 public usdcToken;
     uint256 public rate = 10;

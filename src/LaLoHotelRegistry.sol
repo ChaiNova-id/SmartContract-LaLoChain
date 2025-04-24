@@ -4,7 +4,7 @@ pragma solidity ^0.8.13;
 import {LaLoTokenFactory} from "./LaLoTokenFactory.sol";
 import {LaLoToken} from "./LaLoToken.sol";
 
-contract LaLoHotel {
+contract LaLoHotelBook {
 
     LaLoTokenFactory public tokenFactory;
     
