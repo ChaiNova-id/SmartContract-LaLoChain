@@ -3,10 +3,14 @@ pragma solidity ^0.8.13;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
+import {IHotelRegistry} from './IHotelRegistry.sol';
 
-interface IHotelRegistry {
-    function isHotelRegistered(address hotelOwner) external view returns (bool);
-}
+// Define custom errors outside the contract
+error HotelNotRegistered();
+error RoomNotAvailable();
+error InvalidNights();
+error PaymentFailed();
+error WithdrawFailed();
 
 contract LaLoHotelBook is Ownable {
     struct Room {
@@ -37,7 +41,9 @@ contract LaLoHotelBook is Ownable {
     }
 
     modifier onlyRegisteredHotel() {
-        require(hotelRegistry.isHotelRegistered(msg.sender), "Hotel not registered");
+        if (!hotelRegistry.isHotelRegistered(msg.sender)) {
+            revert HotelNotRegistered(); // Use the custom error
+        }
         _;
     }
 
@@ -53,11 +59,17 @@ contract LaLoHotelBook is Ownable {
 
     function bookRoom(uint256 roomId, uint256 nights) external {
         Room memory room = rooms[roomId];
-        require(room.isAvailable, "Room not available");
-        require(nights > 0, "Nights must be > 0");
+        if (!room.isAvailable) {
+            revert RoomNotAvailable(); // Use the custom error
+        }
+        if (nights <= 0) {
+            revert InvalidNights(); // Use the custom error
+        }
 
         uint256 totalCost = room.pricePerNight * nights;
-        require(paymentToken.transferFrom(msg.sender, address(this), totalCost), "Payment failed");
+        if (!paymentToken.transferFrom(msg.sender, address(this), totalCost)) {
+            revert PaymentFailed(); // Use the custom error
+        }
 
         roomBookings[roomId].push(Booking(msg.sender, nights, totalCost, block.timestamp));
 
@@ -69,6 +81,8 @@ contract LaLoHotelBook is Ownable {
     }
 
     function withdrawEarnings(address to, uint256 amount) external onlyOwner {
-        require(paymentToken.transfer(to, amount), "Withdraw failed");
+        if (!paymentToken.transfer(to, amount)) {
+            revert WithdrawFailed(); // Use the custom error
+        }
     }
 }

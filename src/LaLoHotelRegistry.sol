@@ -3,24 +3,17 @@ pragma solidity ^0.8.13;
 
 import {LaLoTokenFactory} from "./LaLoTokenFactory.sol";
 import {LaLoToken} from "./LaLoToken.sol";
+import {IHotelRegistry} from "./IHotelRegistry.sol"; // Import the interface
 
-contract LaLoHotelBook {
+contract LaLoHotelRegistry is IHotelRegistry {
 
     LaLoTokenFactory public tokenFactory;
-    
-    // Struct to store hotel information
-    struct Hotel {
-        string name;
-        string location;
-        address tokenAddress;
-        uint256 registrationDate;
-    }
 
     // Mapping of hotel ID to Hotel data
     mapping(uint256 => Hotel) public hotels;
-
-    // Event to emit when a hotel is registered
-    event HotelRegistered(uint256 hotelId, string name, string location, address tokenAddress);
+    
+    // Mapping to track whether an address is a registered hotel owner
+    mapping(address => bool) public isRegisteredHotelOwner; 
 
     // Counter for hotel IDs
     uint256 public nextHotelId;
@@ -28,6 +21,11 @@ contract LaLoHotelBook {
     // Constructor that accepts the LaLoTokenFactory address
     constructor(address _tokenFactory) {
         tokenFactory = LaLoTokenFactory(_tokenFactory);
+    }
+
+    // Implementing the interface function to check if hotel is registered
+    function isHotelRegistered(address hotelOwner) external view override returns (bool) {
+        return isRegisteredHotelOwner[hotelOwner];
     }
 
     // Function to register a hotel
@@ -43,6 +41,9 @@ contract LaLoHotelBook {
             registrationDate: block.timestamp
         });
 
+        // Mark the sender's address as a registered hotel owner
+        isRegisteredHotelOwner[msg.sender] = true;
+
         // Emit the HotelRegistered event
         emit HotelRegistered(nextHotelId, name, location, tokenAddress);
 
@@ -51,7 +52,7 @@ contract LaLoHotelBook {
     }
 
     // Function to get hotel details by hotel ID
-    function getHotel(uint256 hotelId) public view returns (Hotel memory) {
+    function getHotel(uint256 hotelId) external view returns (Hotel memory) {
         return hotels[hotelId];
     }
 }
