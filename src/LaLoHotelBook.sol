@@ -11,6 +11,7 @@ error RoomNotAvailable();
 error InvalidNights();
 error PaymentFailed();
 error WithdrawFailed();
+error UnauthorizedRoomOwner();
 
 contract LaLoHotelBook is Ownable {
     struct Room {
@@ -31,6 +32,7 @@ contract LaLoHotelBook is Ownable {
     uint256 public nextRoomId;
     mapping(uint256 => Room) public rooms;
     mapping(uint256 => Booking[]) public roomBookings;
+    mapping(uint256 => uint256) public roomToHotel; // Maps roomId to hotelId
 
     event RoomListed(uint256 roomId, uint256 price);
     event RoomBooked(uint256 roomId, address guest, uint256 nights, uint256 totalPaid);
@@ -40,23 +42,31 @@ contract LaLoHotelBook is Ownable {
         hotelRegistry = IHotelRegistry(_hotelRegistry);
     }
 
-    modifier onlyRegisteredHotel() {
-        if (!hotelRegistry.isHotelRegistered(msg.sender)) {
+    modifier onlyRegisteredHotel(uint256 hotelId) {
+        if (!hotelRegistry.isHotelRegistered(hotelId)) {
             revert HotelNotRegistered(); // Use the custom error
         }
         _;
     }
 
-    function listRoom(uint256 pricePerNight) external onlyRegisteredHotel {
+    // Function to list a room by a registered hotel owner
+    function listRoom(uint256 hotelId, uint256 pricePerNight) external onlyRegisteredHotel(hotelId) {
         rooms[nextRoomId] = Room(pricePerNight, true);
+        roomToHotel[nextRoomId] = hotelId;  // Associate the room with the hotel ID
         emit RoomListed(nextRoomId, pricePerNight);
         nextRoomId++;
     }
 
-    function updateRoomAvailability(uint256 roomId, bool availability) external onlyRegisteredHotel {
+    // Function to update room availability, only by the hotel owner
+    function updateRoomAvailability(uint256 roomId, uint256 hotelId, bool availability) external {
+        if (roomToHotel[roomId] != hotelId) {
+            revert UnauthorizedRoomOwner(); // Ensure the room belongs to the caller's hotel
+        }
+
         rooms[roomId].isAvailable = availability;
     }
 
+    // Function to book a room
     function bookRoom(uint256 roomId, uint256 nights) external {
         Room memory room = rooms[roomId];
         if (!room.isAvailable) {
@@ -76,10 +86,12 @@ contract LaLoHotelBook is Ownable {
         emit RoomBooked(roomId, msg.sender, nights, totalCost);
     }
 
+    // Function to get all bookings for a specific room
     function getBookingsForRoom(uint256 roomId) external view returns (Booking[] memory) {
         return roomBookings[roomId];
     }
 
+    // Function to withdraw earnings to a specified address
     function withdrawEarnings(address to, uint256 amount) external onlyOwner {
         if (!paymentToken.transfer(to, amount)) {
             revert WithdrawFailed(); // Use the custom error

@@ -2,7 +2,8 @@
 pragma solidity ^0.8.13;
 
 interface IHotelRegistry {
-    // Struct to store hotel information
+    event HotelRegistered(uint256 hotelId, string name, string location, address tokenAddress);
+
     struct Hotel {
         string name;
         string location;
@@ -10,12 +11,10 @@ interface IHotelRegistry {
         uint256 registrationDate;
     }
 
-    // Function to check if a hotel is registered based on the hotel owner's address
-    function isHotelRegistered(address hotelOwner) external view returns (bool);
-
-    // Optionally, you can add other functions like getting hotel details by ID
+    // Change the method signature to accept hotelId
+    function isHotelRegistered(uint256 hotelId) external view returns (bool);
+    
+    function registerHotel(string memory name, string memory location, uint256 tokenAmount) external;
+    
     function getHotel(uint256 hotelId) external view returns (Hotel memory);
-
-    // Event to notify when a hotel is registered
-    event HotelRegistered(uint256 hotelId, string name, string location, address tokenAddress);
 }

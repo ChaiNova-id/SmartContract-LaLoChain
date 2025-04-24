@@ -12,8 +12,8 @@ contract LaLoHotelRegistry is IHotelRegistry {
     // Mapping of hotel ID to Hotel data
     mapping(uint256 => Hotel) public hotels;
     
-    // Mapping to track whether an address is a registered hotel owner
-    mapping(address => bool) public isRegisteredHotelOwner; 
+    // Mapping to track whether a hotel ID is a registered hotel
+    mapping(uint256 => bool) public isRegisteredHotel; 
 
     // Counter for hotel IDs
     uint256 public nextHotelId;
@@ -23,9 +23,9 @@ contract LaLoHotelRegistry is IHotelRegistry {
         tokenFactory = LaLoTokenFactory(_tokenFactory);
     }
 
-    // Implementing the interface function to check if hotel is registered
-    function isHotelRegistered(address hotelOwner) external view override returns (bool) {
-        return isRegisteredHotelOwner[hotelOwner];
+    // Implementing the interface function to check if a hotel is registered by hotelId
+    function isHotelRegistered(uint256 hotelId) external view override returns (bool) {
+        return isRegisteredHotel[hotelId];
     }
 
     // Function to register a hotel
@@ -41,8 +41,8 @@ contract LaLoHotelRegistry is IHotelRegistry {
             registrationDate: block.timestamp
         });
 
-        // Mark the sender's address as a registered hotel owner
-        isRegisteredHotelOwner[msg.sender] = true;
+        // Mark the hotel as registered
+        isRegisteredHotel[nextHotelId] = true;
 
         // Emit the HotelRegistered event
         emit HotelRegistered(nextHotelId, name, location, tokenAddress);
