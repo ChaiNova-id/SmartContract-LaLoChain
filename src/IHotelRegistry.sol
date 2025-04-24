@@ -2,12 +2,14 @@
 pragma solidity ^0.8.13;
 
 interface IHotelRegistry {
+    error HotelNotRegistered();
     event HotelRegistered(uint256 hotelId, string name, string location, address tokenAddress);
 
     struct Hotel {
         string name;
         string location;
         address tokenAddress;
+        address vaultAddress;
         uint256 registrationDate;
     }
 

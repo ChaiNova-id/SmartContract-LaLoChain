@@ -4,6 +4,7 @@ pragma solidity ^0.8.13;
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import {IHotelRegistry} from './IHotelRegistry.sol';
+import {LaLoVault} from './LaLoVault.sol';
 
 // Define custom errors outside the contract
 error HotelNotRegistered();
@@ -26,7 +27,7 @@ contract LaLoHotelBook is Ownable {
         uint256 timestamp;
     }
 
-    IERC20 public immutable paymentToken; // mUSDC
+    IERC20 public immutable usdcToken; // mUSDC
     IHotelRegistry public hotelRegistry;
 
     uint256 public nextRoomId;
@@ -37,8 +38,8 @@ contract LaLoHotelBook is Ownable {
     event RoomListed(uint256 roomId, uint256 price);
     event RoomBooked(uint256 roomId, address guest, uint256 nights, uint256 totalPaid);
 
-    constructor(address _paymentToken, address _hotelRegistry) Ownable(msg.sender) {
-        paymentToken = IERC20(_paymentToken);
+    constructor(address _usdcToken, address _hotelRegistry) Ownable(msg.sender) {
+        usdcToken = IERC20(_usdcToken);
         hotelRegistry = IHotelRegistry(_hotelRegistry);
     }
 
@@ -69,21 +70,34 @@ contract LaLoHotelBook is Ownable {
     // Function to book a room
     function bookRoom(uint256 roomId, uint256 nights) external {
         Room memory room = rooms[roomId];
-        if (!room.isAvailable) {
-            revert RoomNotAvailable(); // Use the custom error
-        }
-        if (nights <= 0) {
-            revert InvalidNights(); // Use the custom error
-        }
+        if (!room.isAvailable) revert RoomNotAvailable();
+        if (nights == 0) revert InvalidNights();
 
         uint256 totalCost = room.pricePerNight * nights;
-        if (!paymentToken.transferFrom(msg.sender, address(this), totalCost)) {
-            revert PaymentFailed(); // Use the custom error
+        uint256 hotelId = roomToHotel[roomId];
+
+        // Get Vault from HotelRegistry
+        IHotelRegistry.Hotel memory hotel = hotelRegistry.getHotel(hotelId);
+        address vault = hotel.vaultAddress;
+
+        // Set the booker if not already set
+        try LaLoVault(vault).setBooker(address(this)) {
+            // success or already set
+        } catch {
+            // Ignore if already set or not allowed
         }
 
-        roomBookings[roomId].push(Booking(msg.sender, nights, totalCost, block.timestamp));
+        // Transfer booking fee to Vault
+        if (!usdcToken.transferFrom(msg.sender, vault, totalCost)) {
+            revert PaymentFailed();
+        }
 
+        // Record the booking
+        roomBookings[roomId].push(Booking(msg.sender, nights, totalCost, block.timestamp));
         emit RoomBooked(roomId, msg.sender, nights, totalCost);
+
+        // Trigger deposit in Vault
+        LaLoVault(vault).depositYield(totalCost);
     }
 
     // Function to get all bookings for a specific room
@@ -93,7 +107,7 @@ contract LaLoHotelBook is Ownable {
 
     // Function to withdraw earnings to a specified address
     function withdrawEarnings(address to, uint256 amount) external onlyOwner {
-        if (!paymentToken.transfer(to, amount)) {
+        if (!usdcToken.transfer(to, amount)) {
             revert WithdrawFailed(); // Use the custom error
         }
     }
