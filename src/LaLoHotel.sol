@@ -1,24 +1,57 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.13;
 
-import "@openzeppelin/contracts/access/AccessControl.sol";
-import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import {LaLoTokenFactory} from "./LaLoTokenFactory.sol";
+import {LaLoToken} from "./LaLoToken.sol";
 
-// Factory contract must return an ERC-20 compliant token
-interface ILaLoTokenFactory {
-    function createToken(uint256 hotelId) external returns (address);
-}
+contract LaLoHotel {
 
-contract LaLoHotel is AccessControl {
-    ILaLoTokenFactory public tokenFactory;
-
-    constructor(address _tokenFactory) {
-        tokenFactory = ILaLoTokenFactory(_tokenFactory);
-        _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
+    LaLoTokenFactory public tokenFactory;
+    
+    // Struct to store hotel information
+    struct Hotel {
+        string name;
+        string location;
+        address tokenAddress;
+        uint256 registrationDate;
     }
 
-    function createAndTransfer(uint256 hotelId, address recipient, uint256 amount) external {
-        address tokenAddr = tokenFactory.createToken(hotelId);
-        IERC20(tokenAddr).transfer(recipient, amount);
+    // Mapping of hotel ID to Hotel data
+    mapping(uint256 => Hotel) public hotels;
+
+    // Event to emit when a hotel is registered
+    event HotelRegistered(uint256 hotelId, string name, string location, address tokenAddress);
+
+    // Counter for hotel IDs
+    uint256 public nextHotelId;
+
+    // Constructor that accepts the LaLoTokenFactory address
+    constructor(address _tokenFactory) {
+        tokenFactory = LaLoTokenFactory(_tokenFactory);
+    }
+
+    // Function to register a hotel
+    function registerHotel(string memory name, string memory location, uint256 tokenAmount) public {
+        // Deploy a new LaLoToken for this hotel
+        address tokenAddress = tokenFactory.deployToken(tokenAmount);
+
+        // Create a new hotel entry
+        hotels[nextHotelId] = Hotel({
+            name: name,
+            location: location,
+            tokenAddress: tokenAddress,
+            registrationDate: block.timestamp
+        });
+
+        // Emit the HotelRegistered event
+        emit HotelRegistered(nextHotelId, name, location, tokenAddress);
+
+        // Increment the hotel ID for the next hotel
+        nextHotelId++;
+    }
+
+    // Function to get hotel details by hotel ID
+    function getHotel(uint256 hotelId) public view returns (Hotel memory) {
+        return hotels[hotelId];
     }
 }
