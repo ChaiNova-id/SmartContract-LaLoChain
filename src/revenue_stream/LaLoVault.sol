@@ -10,13 +10,12 @@ contract LaLoVault is ERC20, IVault {
     address public hotelToken;          // LaLoToken (ERC20)
     address public booker;              // Set after deployment
 
-    bool public bookerSet;
-
-    constructor(address _usdcToken, address _hotelToken)
+    constructor(address _usdcToken, address _hotelToken, address _booker)
         ERC20("Yield Vault", "VAULT")
     {
         usdcToken = IERC20(_usdcToken);
         hotelToken = _hotelToken;
+        booker = _booker;
     }
 
     modifier onlyBooker() {
@@ -24,13 +23,7 @@ contract LaLoVault is ERC20, IVault {
         _;
     }
 
-    function setBooker(address _booker) external {
-        if(booker != address(0)) revert BookerAlreadySet();
-
-        booker = _booker;
-    }
-
-    function depositYield(address sender, uint256 amount) external onlyBooker {
+    function deposit(address sender, uint256 amount) external onlyBooker {
         // Check if the transfer succeeds
         bool success = usdcToken.transferFrom(sender, address(this), amount);
        if (!success) {
@@ -42,7 +35,7 @@ contract LaLoVault is ERC20, IVault {
         // Check if the sender has enough shares to withdraw
         uint256 userShares = balanceOf(msg.sender);
         if (shares > userShares) {
-            revert("Not enough shares to withdraw"); // Revert if the user doesn't have enough shares
+            revert (); // Revert if the user doesn't have enough shares
         }
 
         uint256 amount = (shares * usdcToken.balanceOf(address(this))) / totalSupply();

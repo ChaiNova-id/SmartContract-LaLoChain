@@ -2,7 +2,7 @@
 pragma solidity ^0.8.13;
 
 interface IHotelTokenization {
-    error USDCTransferFailed();
+    error LLOTTransferFailed();
     error HotelNotRegistered();
     error InsufficientSharesToWithdraw();
 

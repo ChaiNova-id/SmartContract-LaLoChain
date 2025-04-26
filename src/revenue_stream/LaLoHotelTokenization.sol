@@ -6,7 +6,7 @@ import {IHotelTokenization} from "./IHotelTokenization.sol";
 import {IHotelRegistry} from "../hotel_owners/IHotelRegistry.sol";
 import {LaLoVault} from "./LaLoVault.sol";
 
-contract LaLoHotelFinance is IHotelTokenization {
+contract LaLoHotelTokenization is IHotelTokenization {
     IERC20 public usdcToken;
     IHotelRegistry public hotelRegistry;
 
@@ -20,19 +20,22 @@ contract LaLoHotelFinance is IHotelTokenization {
             revert HotelNotRegistered();
         }
 
-        // Fetch the hotel details
         IHotelRegistry.Hotel memory hotel = hotelRegistry.getHotel(hotelId);
 
-        // Transfer USDC from the buyer to this contract
-        if (!usdcToken.transferFrom(msg.sender, address(this), amountInUSDC)) {
-            revert USDCTransferFailed();
-        }
+        // Cast the vault address
+        LaLoVault vault = LaLoVault(hotel.vaultAddress);
 
-        // Transfer hotel tokens to the buyer (assuming 1:1 rate with USDC)
-        IERC20(hotel.tokenAddress).transfer(msg.sender, amountInUSDC);
+        // Deposit on behalf of buyer to issue shares
+        vault.deposit(msg.sender, amountInUSDC); 
+
+        // (optional) If you still want to transfer "hotel tokens" as a bonus/ownership proof
+        if(!IERC20(hotel.tokenAddress).transfer(msg.sender, amountInUSDC)) {
+            revert LLOTTransferFailed();
+        }
 
         emit TokensBought(hotelId, msg.sender, amountInUSDC);
     }
+
 
     function withdrawFromVault(uint256 hotelId, uint256 shares) external {
         if (!hotelRegistry.isHotelRegistered(hotelId)) {
