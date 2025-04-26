@@ -8,22 +8,22 @@ import {IVault} from "./IVault.sol";
 contract LaLoVault is ERC20, IVault {
     IERC20 public immutable usdcToken;  // mUSDC
     address public hotelToken;          // LaLoToken (ERC20)
-    address public booker;              // Set after deployment
+    address public owner;              // Set after deployment
 
-    constructor(address _usdcToken, address _hotelToken, address _booker)
+    constructor(address _usdcToken, address _hotelToken, address _owner)
         ERC20("Yield Vault", "VAULT")
     {
         usdcToken = IERC20(_usdcToken);
         hotelToken = _hotelToken;
-        booker = _booker;
+        owner = _owner;
     }
 
-    modifier onlyBooker() {
-        if(msg.sender != booker) revert NotBooker(msg.sender);
+    modifier onlyOwner() {
+        if(msg.sender != owner) revert NotBooker(msg.sender);
         _;
     }
 
-    function deposit(address sender, uint256 amount) external onlyBooker {
+    function deposit(address sender, uint256 amount) external onlyOwner {
         // Check if the transfer succeeds
         bool success = usdcToken.transferFrom(sender, address(this), amount);
        if (!success) {

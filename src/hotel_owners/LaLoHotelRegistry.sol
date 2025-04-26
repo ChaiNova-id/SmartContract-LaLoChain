@@ -39,7 +39,8 @@ contract LaLoHotelRegistry is IHotelRegistry {
         // Deploy a new LaLoVault for this hotel
         address vaultAddress = address(new LaLoVault(
             address(usdcToken),
-            tokenAddress
+            tokenAddress,
+            msg.sender
         ));
 
         // Create a new hotel entry
