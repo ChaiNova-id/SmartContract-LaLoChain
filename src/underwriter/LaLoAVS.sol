@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.13;
 
-import {LaLoTokenFactory} from "./LaLoTokenFactory.sol";
+import {LaLoTokenFactory} from "../token_exchange/LaLoTokenFactory.sol";
 
 contract LaLoTokenAVS {
 

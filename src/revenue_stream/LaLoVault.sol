@@ -3,17 +3,12 @@ pragma solidity ^0.8.13;
 
 import {ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import {IVault} from "./IVault.sol";
 
-error NotBooker(address from);
-error BookerAlreadySet();
-error InsufficientHotelToken();
-error TransferFailed();
-error UnauthorizedBooker();
-
-contract LaLoVault is ERC20 {
-    IERC20 public immutable usdcToken; // mUSDC
-    address public hotelToken;     // LaLoToken (ERC20)
-    address public booker;         // Set after deployment
+contract LaLoVault is ERC20, IVault {
+    IERC20 public immutable usdcToken;  // mUSDC
+    address public hotelToken;          // LaLoToken (ERC20)
+    address public booker;              // Set after deployment
 
     bool public bookerSet;
 
@@ -54,7 +49,6 @@ contract LaLoVault is ERC20 {
         _burn(msg.sender, shares);  // Burn the shares
         usdcToken.transfer(msg.sender, amount);  // Transfer the USDC to the user
     }
-
 
     function mintShares() external {
         uint256 balance = IERC20(hotelToken).balanceOf(msg.sender);

@@ -3,9 +3,12 @@ pragma solidity ^0.8.13;
 
 interface IHotelRegistry {
     error HotelNotRegistered();
+    error UnauthorizedHotelOwner();
+
     event HotelRegistered(uint256 hotelId, string name, string location, address tokenAddress);
 
     struct Hotel {
+        address owner;
         string name;
         string location;
         address tokenAddress;

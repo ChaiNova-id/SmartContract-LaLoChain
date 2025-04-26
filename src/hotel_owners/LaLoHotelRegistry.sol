@@ -1,17 +1,13 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.13;
 
-import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import {LaLoTokenFactory} from "./LaLoTokenFactory.sol";
-import {LaLoToken} from "./LaLoToken.sol";
-import {LaLoVault} from "./LaLoVault.sol";
+import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import {LaLoTokenFactory} from "../token_exchange/LaLoTokenFactory.sol";
+import {LaLoToken} from "../token_exchange/LaLoToken.sol";
+import {LaLoVault} from "../revenue_stream/LaLoVault.sol";
 import {IHotelRegistry} from "./IHotelRegistry.sol"; // Import the interface
 
 contract LaLoHotelRegistry is IHotelRegistry {
-    error USDCTransferFailed();
-
-    event TokensBought(uint256 indexed hotelId, address indexed buyer, uint256 amount);
-    
     IERC20 public usdcToken;
     LaLoTokenFactory public tokenFactory;
 
@@ -48,6 +44,7 @@ contract LaLoHotelRegistry is IHotelRegistry {
 
         // Create a new hotel entry
         hotels[nextHotelId] = Hotel({
+            owner: msg.sender,
             name: name,
             location: location,
             tokenAddress: tokenAddress,
