@@ -14,7 +14,7 @@ contract DeployHotelSystem is Script {
         vm.startBroadcast();
 
         // Deploy Mock USDC
-        MockUSDC usdc = new MockUSDC();
+        MockUSDC usdc = new MockUSDC(1e32);
 
         // Deploy factory
         LaLoTokenFactory factory = new LaLoTokenFactory();

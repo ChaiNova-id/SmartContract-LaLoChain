@@ -19,7 +19,7 @@ contract LaLoHotelTokenizationTest is Test {
     uint256 totalMonths;
 
     function setUp() public {
-        usdc = new MockUSDC();
+        usdc = new MockUSDC(1e6);
 
         factory = new LaLoTokenFactory();
 
