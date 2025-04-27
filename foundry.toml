@@ -4,7 +4,9 @@ out = "out"
 libs = ["lib"]
 solc_version = "0.8.13"
 
-# See more config options https://github.com/foundry-rs/foundry/blob/master/crates/config/README.md#all-options
 remappings = [
     "@openzeppelin/=lib/openzeppelin-contracts/"
 ]
+
+[rpc_endpoints]
+devnet = "https://devnet.dplabs-internal.com"
