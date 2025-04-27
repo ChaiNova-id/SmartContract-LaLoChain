@@ -185,7 +185,7 @@ contract LaLoVault is ERC20, IVault {
     // Test purposes
     function setTestPurposes(address _sender, uint256 _amount) external onlyOwner(_sender) notZero(_amount) {
         // Check if the transaction doesn't exceed the total month of current test purposes
-        if (_amount > totalMonth - testPurposesAddingMonth) revert ExceedingMonths(totalMonth, _amount);
+        if (_amount > totalMonth) revert ExceedingMonths(totalMonth, _amount);
         testPurposesAddingMonth = _amount;
     }
 

@@ -42,7 +42,7 @@ contract LaLoHotelRegistry is IHotelRegistry {
         if (_tokenAmount == 0 || _usdcPrice == 0) revert ZeroAmount();
 
         // Check if the rate is valid
-        uint256 ratio = 1e6;
+        uint256 ratio = 1e18;
         uint256 rate = _tokenAmount * ratio / _usdcPrice;
         if (rate < ratio) revert InvalidSellingRate(
             _tokenAmount,
