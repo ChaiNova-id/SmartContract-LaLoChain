@@ -12,9 +12,9 @@ contract LaLoHotelRegistry is IHotelRegistry {
 
     // Mapping of hotel ID to Hotel data
     mapping(uint256 => Hotel) public hotels;
-    
+
     // Mapping to track whether a hotel ID is a registered hotel
-    mapping(uint256 => bool) public isRegisteredHotel; 
+    mapping(uint256 => bool) public isRegisteredHotel;
 
     // Counter for hotel IDs
     uint256 public nextHotelId;
@@ -44,7 +44,7 @@ contract LaLoHotelRegistry is IHotelRegistry {
         // Check if the rate is valid
         uint256 ratio = 1e18;
         uint256 rate = _tokenAmount * ratio / _usdcPrice;
-        if (rate < ratio) revert InvalidSellingRate(
+        if (_usdcPrice > _tokenAmount) revert InvalidSellingRate(
             _tokenAmount,
             _usdcPrice
         );

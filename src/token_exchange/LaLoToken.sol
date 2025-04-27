@@ -9,7 +9,7 @@ contract LaLoToken is ERC20, Ownable {
         uint256 _initialSupply
     )
         ERC20("LaLoToken", "LLOT")
-        Ownable(msg.sender)
+        Ownable()
     {
         _mint(msg.sender, _initialSupply);
     }

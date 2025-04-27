@@ -6,6 +6,7 @@ import {LaLoToken} from "./LaLoToken.sol";
 contract LaLoTokenFactory {
     // Mapping to track deployed tokens
     mapping(address => bool) public tokens;
+    LaLoToken public token;
 
     // Event for logging token creation
     event TokenCreated(address tokenAddress, address creator, uint256 amount);
@@ -13,7 +14,7 @@ contract LaLoTokenFactory {
     // Function to deploy a new token
     function deployToken(uint256 _amount) public returns (address tokenAddress) {
         // Create a new LaLoToken with the specified initial supply
-        LaLoToken token = new LaLoToken(_amount);
+        token = new LaLoToken(_amount);
 
         // Transfer the entire initial supply to the creator
         token.transfer(msg.sender, _amount);

@@ -1,21 +1,23 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.13;
 
+import {console} from "forge-std/Test.sol";
 import {ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import {LaLoToken} from "../token_exchange/LaLoToken.sol";
 import {LaLoTokenFactory} from "../token_exchange/LaLoTokenFactory.sol";
 import {IVault} from "./IVault.sol";
 
 contract LaLoVault is ERC20, IVault {
     // Currency setup
     IERC20 public immutable usdcToken;
-    IERC20 public immutable lloToken;
+    LaLoToken public immutable lloToken;
     uint256 public immutable rate; // already multiplied by ratio
     uint256 public immutable ratio; // e.g. 1e6
     uint256 public immutable promisedRevenue;
     uint256 public remainingPromisedRevenue;
     mapping(address => uint256) public claimedRevenuesInLLoT;
-    
+
     // Hotel setup
     uint256 public immutable registrationDate;
     uint256 public immutable totalRevenue;
@@ -25,8 +27,8 @@ contract LaLoVault is ERC20, IVault {
 
     constructor(
         address _usdcToken,
-        LaLoTokenFactory tokenFactory,
-        uint256 tokenAmount,
+        LaLoTokenFactory _tokenFactory,
+        uint256 _tokenAmount,
         address _owner,
         uint256 _rate,
         uint256 _ratio,
@@ -36,18 +38,18 @@ contract LaLoVault is ERC20, IVault {
         ERC20("LaLoVault", "LLOV")
     {
         // Deploy a new LaLoToken for this vault
-        address tokenAddress = tokenFactory.deployToken(tokenAmount);
+        address tokenAddress = _tokenFactory.deployToken(_tokenAmount);
 
         usdcToken = IERC20(_usdcToken);
-        lloToken = IERC20(tokenAddress);
+        lloToken = LaLoToken(tokenAddress);
         owner = _owner;
         rate = _rate;
         ratio = _ratio;
         totalMonth = _totalMonth;
         totalRevenue = _totalRevenue;
         registrationDate = block.timestamp;
-        promisedRevenue = tokenAmount;
-        remainingPromisedRevenue = tokenAmount;
+        promisedRevenue = _tokenAmount;
+        remainingPromisedRevenue = _tokenAmount;
 
         // Test only
         testPurposesAddingMonth = 0;
@@ -61,7 +63,7 @@ contract LaLoVault is ERC20, IVault {
     function getTransferLimit(address _sender) external view returns (uint256 transferLimit) {
         // Get the user's existing LLoT
         uint256 userLLoT = lloToken.balanceOf(_sender);
-        
+
         // Get the claimed revenue in LLoT of the user
         uint256 currentClaimedRevenueInLLoT = claimedRevenuesInLLoT[_sender];
 
@@ -70,6 +72,9 @@ contract LaLoVault is ERC20, IVault {
 
         // Test purposes
         monthsPassed += testPurposesAddingMonth;
+
+        // Max month if monthsPassed is more than totalMonth
+        if (monthsPassed > totalMonth) monthsPassed = totalMonth;
 
         // Calculate the month ratio
         uint256 calcRatio = 1e18;
@@ -106,24 +111,9 @@ contract LaLoVault is ERC20, IVault {
         _;
     }
 
-    // Get available LaLoTokens
-    function getAvailableTokens() external view returns (uint256 llotBalance) {
-        return lloToken.balanceOf(address(this));
-    }
-
-    // Get available revenues
-    function getAvailableRevenues() external view returns (uint256 usdcBalance) {
-        return usdcToken.balanceOf(address(this));
-    }
-
-    // Get promised revenues
-    function getPromisedRevenues() external view returns (uint256 promisedRev) {
-        return promisedRevenue;
-    }
-
-    // Get claimed revenues
-    function getClaimedRevenues(address _sender) external view returns (uint256 claimedRev) {
-        return claimedRevenuesInLLoT[_sender];
+    // Get token
+    function getToken() external view returns (LaLoToken token) {
+        return LaLoToken(address(lloToken));
     }
 
     // Buying shares (in: x usdc => out; (x * rate) lloToken)
@@ -139,7 +129,7 @@ contract LaLoVault is ERC20, IVault {
 
         // Calculate LLoT to buy
         uint256 lloT = (_amount * rate) / ratio;
-        
+
         // Check if there's still existing LLoT in the Vault
         uint256 vaultTokens = lloToken.balanceOf(address(this));
         if (lloT > vaultTokens) {
@@ -154,11 +144,6 @@ contract LaLoVault is ERC20, IVault {
         if (!transferSuccess) revert TransferFailed();
         transferSuccess = lloToken.transfer(_sender, lloT); // Transfer LLoT to buyer
         if (!transferSuccess) revert TransferFailed();
-    }
-
-    // Get user balance in llotoken
-    function checkBalance(address _sender) external view returns (uint256 llotBalance) {
-        return lloToken.balanceOf(_sender);
     }
 
     // User claiming from vault (in: x usdc => out: x usdc)
@@ -180,6 +165,36 @@ contract LaLoVault is ERC20, IVault {
 
         // Reduce remainingPromisedRevenue
         remainingPromisedRevenue -= _amount;
+    }
+
+    // Get user balance in llotoken
+    function checkBalance(address _sender) external view returns (uint256 llotBalance) {
+        return lloToken.balanceOf(_sender);
+    }
+
+    // Get available LaLoTokens
+    function getAvailableTokens() external view returns (uint256 llotBalance) {
+        return lloToken.balanceOf(address(this));
+    }
+
+    // Get available revenues
+    function getAvailableRevenues() external view returns (uint256 usdcBalance) {
+        return usdcToken.balanceOf(address(this));
+    }
+
+    // Get promised revenues
+    function getPromisedRevenues() external view returns (uint256 promisedRev) {
+        return promisedRevenue;
+    }
+
+    // Get promised revenues
+    function getRemainingPromisedRevenues() external view returns (uint256 remPromisedRev) {
+        return remainingPromisedRevenue;
+    }
+
+    // Get claimed revenues
+    function getClaimedRevenues(address _sender) external view returns (uint256 claimedRev) {
+        return claimedRevenuesInLLoT[_sender];
     }
 
     // Test purposes

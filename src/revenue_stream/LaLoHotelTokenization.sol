@@ -86,18 +86,16 @@ contract LaLoHotelTokenization is IHotelTokenization {
         );
     }
 
-    function getAvailableCurrency(uint256 _hotelId) external view returns (uint256 llot, uint256 usdc) {
-        // Get the vault address associated with the hotel
+    function getAvailableTokens(uint256 _hotelId) external view returns (uint256) {
         address vaultAddress = hotelRegistry.getVaultAddress(_hotelId);
-
-        // Cast the vault address to LaLoVault contract
         LaLoVault vault = LaLoVault(vaultAddress);
+        return vault.getAvailableTokens();
+    }
 
-        // Get LLoT
-        llot = vault.getAvailableTokens();
-
-        // Get USDC
-        usdc = vault.getAvailableRevenues();
+    function getAvailableRevenues(uint256 _hotelId) external view returns (uint256) {
+        address vaultAddress = hotelRegistry.getVaultAddress(_hotelId);
+        LaLoVault vault = LaLoVault(vaultAddress);
+        return vault.getAvailableRevenues();
     }
 
     function getTransferLimit(uint256 _hotelId) external view returns (uint256 limit) {
@@ -135,6 +133,17 @@ contract LaLoHotelTokenization is IHotelTokenization {
 
         // Get return value
         usdcs = vault.getClaimedRevenues(msg.sender);
+    }
+
+    function getRemainingPromisedRevenues(uint256 _hotelId) external view returns (uint256 remainingRevs) {
+        // Get the vault address associated with the hotel
+        address vaultAddress = hotelRegistry.getVaultAddress(_hotelId);
+
+        // Cast the vault address to LaLoVault contract
+        LaLoVault vault = LaLoVault(vaultAddress);
+
+        // Get return value
+        remainingRevs = vault.getRemainingPromisedRevenues();
     }
 
     // Testing purposes
