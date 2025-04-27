@@ -53,7 +53,7 @@ contract LaLoHotelTokenization is IHotelTokenization {
         // Cast the vault address to LaLoVault contract
         LaLoVault vault = LaLoVault(vaultAddress);
 
-        // Withdraw shares (LaLoVault will burn and send USDC)
+        // Withdraw shares
         vault.withdraw(
             msg.sender,
             withdrawInUSDC
@@ -63,6 +63,26 @@ contract LaLoHotelTokenization is IHotelTokenization {
             hotelId,
             msg.sender,
             withdrawInUSDC
+        );
+    }
+
+    function ownerDepositUSDC(uint256 hotelId, uint256 depositInUSDC) external onlyRegisteredHotel(hotelId) {
+        // Get the vault address associated with the hotel
+        address vaultAddress = hotelRegistry.getVaultAddress(hotelId);
+
+        // Cast the vault address to LaLoVault contract
+        LaLoVault vault = LaLoVault(vaultAddress);
+
+        // Deposit to ault
+        vault.deposit(
+            msg.sender,
+            depositInUSDC
+        );
+
+        emit USDCWithdrawn(
+            hotelId,
+            msg.sender,
+            depositInUSDC
         );
     }
 
@@ -93,6 +113,28 @@ contract LaLoHotelTokenization is IHotelTokenization {
 
     function getVaultAddress(uint256 hotelId) external view returns (address vaultAddress) {
         return hotelRegistry.getVaultAddress(hotelId);
+    }
+
+    function getCurrentTokens(uint256 hotelId) external view returns (uint256 lloTokens) {
+        // Get the vault address associated with the hotel
+        address vaultAddress = hotelRegistry.getVaultAddress(hotelId);
+
+        // Cast the vault address to LaLoVault contract
+        LaLoVault vault = LaLoVault(vaultAddress);
+
+        // Get return value
+        lloTokens = vault.checkBalance(msg.sender);
+    }
+
+    function getCollectedRevenues(uint256 hotelId) external view returns (uint256 usdcs) {
+        // Get the vault address associated with the hotel
+        address vaultAddress = hotelRegistry.getVaultAddress(hotelId);
+
+        // Cast the vault address to LaLoVault contract
+        LaLoVault vault = LaLoVault(vaultAddress);
+
+        // Get return value
+        usdcs = vault.getClaimedRevenues(msg.sender);
     }
 
     // Testing purposes

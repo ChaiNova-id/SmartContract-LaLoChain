@@ -8,4 +8,5 @@ interface IHotelTokenization {
 
     event TokensBought(uint256 indexed hotelId, address indexed buyer, uint256 amount);
     event USDCWithdrawn(uint256 indexed hotelId, address indexed user, uint256 shares);
+    event USDCDeposit(uint256 indexed hotelId, address indexed user, uint256 amount);
 }
