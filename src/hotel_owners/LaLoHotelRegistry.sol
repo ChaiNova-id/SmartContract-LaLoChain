@@ -21,26 +21,44 @@ contract LaLoHotelRegistry is IHotelRegistry {
     uint256 public nextHotelId;
 
     // Constructor that accepts the LaLoTokenFactory address
-    constructor(address _tokenFactory, address _usdcToken) {
-        tokenFactory = LaLoTokenFactory(_tokenFactory);
+    constructor(address _usdcToken, address _tokenFactory) {
         usdcToken = IERC20(_usdcToken);
+        tokenFactory = LaLoTokenFactory(_tokenFactory);
     }
 
     // Implementing the interface function to check if a hotel is registered by hotelId
-    function isHotelRegistered(uint256 hotelId) external view override returns (bool) {
+    function isHotelRegistered(uint256 hotelId) external view returns (bool) {
         return isRegisteredHotel[hotelId];
     }
 
     // Function to register a hotel
-    function registerHotel(string memory name, string memory location, uint256 tokenAmount) public {
+    function registerHotel(
+        string memory name,
+        string memory location,
+        uint256 tokenAmount,
+        uint256 usdcPrice,
+        uint256 totalMonth
+    ) public {
+        // Check if the rate is valid
+        uint256 ratio = 1e6;
+        uint256 rate = tokenAmount * ratio / usdcPrice;
+        if (rate < ratio) revert InvalidSellingRate(
+            tokenAmount,
+            usdcPrice
+        );
+
         // Deploy a new LaLoToken for this hotel
         address tokenAddress = tokenFactory.deployToken(tokenAmount);
 
         // Deploy a new LaLoVault for this hotel
         address vaultAddress = address(new LaLoVault(
             address(usdcToken),
-            tokenAddress,
-            msg.sender
+            address(tokenAddress),
+            msg.sender,
+            rate,
+            ratio,
+            totalMonth,
+            tokenAmount
         ));
 
         // Create a new hotel entry

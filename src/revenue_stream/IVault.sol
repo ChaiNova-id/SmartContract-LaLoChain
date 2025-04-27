@@ -2,8 +2,9 @@
 pragma solidity ^0.8.13;
 
 interface IVault {
-    error InsufficientHotelToken();
-    error InsufficientShares();
+    error InsufficientUSDC(uint256 balance, uint256 amount);
+    error InsufficientLaLoToken(uint256 balance, uint256 amount);
+    error InsufficientStock(uint256 stock, uint256 amount);
     error TransferFailed();
-    error NotBooker(address sender);
+    error NotOwner(address sender);
 }

@@ -7,5 +7,5 @@ interface IHotelTokenization {
     error InsufficientSharesToWithdraw();
 
     event TokensBought(uint256 indexed hotelId, address indexed buyer, uint256 amount);
-    event SharesWithdrawn(uint256 indexed hotelId, address indexed user, uint256 shares);
+    event USDCWithdrawn(uint256 indexed hotelId, address indexed user, uint256 shares);
 }
