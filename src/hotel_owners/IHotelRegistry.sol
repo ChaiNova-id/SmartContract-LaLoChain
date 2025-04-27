@@ -9,13 +9,12 @@ interface IHotelRegistry {
     error HotelNotRegistered();
     error UnauthorizedHotelOwner();
 
-    event HotelRegistered(uint256 hotelId, string name, string location, address tokenAddress);
+    event HotelRegistered(uint256 hotelId, string name, string location, address vaultAddress);
 
     struct Hotel {
         address owner;
         string name;
         string location;
-        address tokenAddress;
         address vaultAddress;
         uint256 registrationDate;
     }

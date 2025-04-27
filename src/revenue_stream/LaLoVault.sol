@@ -3,6 +3,7 @@ pragma solidity ^0.8.13;
 
 import {ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import {LaLoTokenFactory} from "../token_exchange/LaLoTokenFactory.sol";
 import {IVault} from "./IVault.sol";
 
 contract LaLoVault is ERC20, IVault {
@@ -22,7 +23,8 @@ contract LaLoVault is ERC20, IVault {
 
     constructor(
         address _usdcToken,
-        address _lloToken,
+        LaLoTokenFactory tokenFactory,
+        uint256 tokenAmount,
         address _owner,
         uint256 _rate,
         uint256 _ratio,
@@ -31,8 +33,11 @@ contract LaLoVault is ERC20, IVault {
     )
         ERC20("LaLoVault", "LLOV")
     {
+        // Deploy a new LaLoToken for this vault
+        address tokenAddress = tokenFactory.deployToken(tokenAmount);
+
         usdcToken = IERC20(_usdcToken);
-        lloToken = IERC20(_lloToken);
+        lloToken = IERC20(tokenAddress);
         owner = _owner;
         rate = _rate;
         ratio = _ratio;
@@ -132,7 +137,7 @@ contract LaLoVault is ERC20, IVault {
     function withdraw(address sender, uint256 amount) external checkTransferLimit(sender, amount) {        
         // All validation fulfilled
         claimedRevenuesInLLoT[sender] += amount;  // Update the user's claim value of LLoT
-        bool success = usdcToken.transferFrom(address(this), sender, amount); // Transfer USDC to the user
+        bool success = usdcToken.transfer(sender, amount); // Transfer USDC to the user
         if(!success) revert TransferFailed();
     }
 

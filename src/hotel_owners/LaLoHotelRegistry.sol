@@ -3,7 +3,6 @@ pragma solidity ^0.8.13;
 
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {LaLoTokenFactory} from "../token_exchange/LaLoTokenFactory.sol";
-import {LaLoToken} from "../token_exchange/LaLoToken.sol";
 import {LaLoVault} from "../revenue_stream/LaLoVault.sol";
 import {IHotelRegistry} from "./IHotelRegistry.sol"; // Import the interface
 
@@ -47,13 +46,11 @@ contract LaLoHotelRegistry is IHotelRegistry {
             usdcPrice
         );
 
-        // Deploy a new LaLoToken for this hotel
-        address tokenAddress = tokenFactory.deployToken(tokenAmount);
-
         // Deploy a new LaLoVault for this hotel
         address vaultAddress = address(new LaLoVault(
             address(usdcToken),
-            address(tokenAddress),
+            tokenFactory,
+            tokenAmount,
             msg.sender,
             rate,
             ratio,
@@ -66,7 +63,6 @@ contract LaLoHotelRegistry is IHotelRegistry {
             owner: msg.sender,
             name: name,
             location: location,
-            tokenAddress: tokenAddress,
             vaultAddress: vaultAddress,
             registrationDate: block.timestamp
         });
@@ -75,14 +71,14 @@ contract LaLoHotelRegistry is IHotelRegistry {
         isRegisteredHotel[nextHotelId] = true;
 
         // Emit the HotelRegistered event
-        emit HotelRegistered(nextHotelId, name, location, tokenAddress);
+        emit HotelRegistered(nextHotelId, name, location, vaultAddress);
 
         // Increment the hotel ID for the next hotel
         nextHotelId++;
     }
 
-    // Function to get hotel details by hotel ID
-    function getHotel(uint256 hotelId) external view returns (Hotel memory) {
-        return hotels[hotelId];
+    // Function to get hotel address
+    function getVaultAddress(uint256 hotelId) external view returns (address) {
+        return hotels[hotelId].vaultAddress;
     }
 }

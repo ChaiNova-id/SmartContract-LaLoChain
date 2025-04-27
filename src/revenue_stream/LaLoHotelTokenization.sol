@@ -28,7 +28,7 @@ contract LaLoHotelTokenization is IHotelTokenization {
 
     function buyLaLoTokens(uint256 hotelId, uint256 buyInUSDC) external onlyRegisteredHotel(hotelId) {
         // Get the vault address associated with the hotel
-        address vaultAddress = hotelRegistry.getHotel(hotelId).vaultAddress;
+        address vaultAddress = hotelRegistry.getVaultAddress(hotelId);
 
         // Cast the vault address to LaLoVault contract
         LaLoVault vault = LaLoVault(vaultAddress);
@@ -48,7 +48,7 @@ contract LaLoHotelTokenization is IHotelTokenization {
 
     function withdrawUSDC(uint256 hotelId, uint256 withdrawInUSDC) external onlyRegisteredHotel(hotelId) {
         // Get the vault address associated with the hotel
-        address vaultAddress = hotelRegistry.getHotel(hotelId).vaultAddress;
+        address vaultAddress = hotelRegistry.getVaultAddress(hotelId);
 
         // Cast the vault address to LaLoVault contract
         LaLoVault vault = LaLoVault(vaultAddress);
@@ -68,7 +68,7 @@ contract LaLoHotelTokenization is IHotelTokenization {
 
     function getAvailableCurrency(uint256 hotelId) external view returns (uint256 llot, uint256 usdc) {
         // Get the vault address associated with the hotel
-        address vaultAddress = hotelRegistry.getHotel(hotelId).vaultAddress;
+        address vaultAddress = hotelRegistry.getVaultAddress(hotelId);
 
         // Cast the vault address to LaLoVault contract
         LaLoVault vault = LaLoVault(vaultAddress);
@@ -82,7 +82,7 @@ contract LaLoHotelTokenization is IHotelTokenization {
 
     function getTransferLimit(uint256 hotelId) external view returns (uint256 limit) {
         // Get the vault address associated with the hotel
-        address vaultAddress = hotelRegistry.getHotel(hotelId).vaultAddress;
+        address vaultAddress = hotelRegistry.getVaultAddress(hotelId);
 
         // Cast the vault address to LaLoVault contract
         LaLoVault vault = LaLoVault(vaultAddress);
@@ -91,10 +91,14 @@ contract LaLoHotelTokenization is IHotelTokenization {
         limit = vault.getTransferLimit(msg.sender);
     }
 
+    function getVaultAddress(uint256 hotelId) external view returns (address vaultAddress) {
+        return hotelRegistry.getVaultAddress(hotelId);
+    }
+
     // Testing purposes
     function setMonthTest(uint256 hotelId, uint256 month) external {
         // Get the vault address associated with the hotel
-        address vaultAddress = hotelRegistry.getHotel(hotelId).vaultAddress;
+        address vaultAddress = hotelRegistry.getVaultAddress(hotelId);
 
         // Cast the vault address to LaLoVault contract
         LaLoVault vault = LaLoVault(vaultAddress);
@@ -105,7 +109,7 @@ contract LaLoHotelTokenization is IHotelTokenization {
 
     function getMonthTest(uint256 hotelId) external view returns (uint256 month) {
         // Get the vault address associated with the hotel
-        address vaultAddress = hotelRegistry.getHotel(hotelId).vaultAddress;
+        address vaultAddress = hotelRegistry.getVaultAddress(hotelId);
 
         // Cast the vault address to LaLoVault contract
         LaLoVault vault = LaLoVault(vaultAddress);
