@@ -8,6 +8,7 @@ interface IHotelRegistry {
     );
     error HotelNotRegistered();
     error UnauthorizedHotelOwner();
+    error ZeroAmount();
 
     event HotelRegistered(uint256 hotelId, string name, string location, address vaultAddress);
 

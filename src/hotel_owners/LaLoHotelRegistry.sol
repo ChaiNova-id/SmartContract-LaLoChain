@@ -38,6 +38,9 @@ contract LaLoHotelRegistry is IHotelRegistry {
         uint256 _usdcPrice,
         uint256 _totalMonth
     ) public {
+        // Ignore if either tokenAmount or usdcPrice is zero
+        if (_tokenAmount == 0 || _usdcPrice == 0) revert ZeroAmount();
+
         // Check if the rate is valid
         uint256 ratio = 1e6;
         uint256 rate = _tokenAmount * ratio / _usdcPrice;

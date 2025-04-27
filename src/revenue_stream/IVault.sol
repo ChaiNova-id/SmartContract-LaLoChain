@@ -8,5 +8,6 @@ interface IVault {
     error ExceedingDeposit(uint256 limit, uint256 deposit);
     error ExceedingMonths(uint256 totalMonth, uint256 amount);
     error TransferFailed();
+    error ZeroAmount();
     error NotOwner(address sender);
 }

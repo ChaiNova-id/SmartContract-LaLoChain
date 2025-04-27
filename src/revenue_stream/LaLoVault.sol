@@ -101,6 +101,11 @@ contract LaLoVault is ERC20, IVault {
         _;
     }
 
+    modifier notZero(uint256 _amount) {
+        if (_amount == 0) revert ZeroAmount();
+        _;
+    }
+
     // Get available LaLoTokens
     function getAvailableTokens() external view returns (uint256 llotBalance) {
         return lloToken.balanceOf(address(this));
@@ -122,7 +127,7 @@ contract LaLoVault is ERC20, IVault {
     }
 
     // Buying shares (in: x usdc => out; (x * rate) lloToken)
-    function buyShares(address _sender, uint256 _amount) external {
+    function buyShares(address _sender, uint256 _amount) external notZero(_amount) {
         // Check if the sender has enough usdc
         uint256 laloTokens = lloToken.balanceOf(address(this));
         if (_amount > laloTokens) {
@@ -157,7 +162,7 @@ contract LaLoVault is ERC20, IVault {
     }
 
     // User claiming from vault (in: x usdc => out: x usdc)
-    function withdraw(address _sender, uint256 _amount) external checkTransferLimit(_sender, _amount) {        
+    function withdraw(address _sender, uint256 _amount) external notZero(_amount) checkTransferLimit(_sender, _amount) {        
         // All validation fulfilled
         claimedRevenuesInLLoT[_sender] += _amount;  // Update the user's claim value of LLoT
         bool success = usdcToken.transfer(_sender, _amount); // Transfer USDC to the user
@@ -165,7 +170,7 @@ contract LaLoVault is ERC20, IVault {
     }
 
     // Owner deposit new revenue
-    function deposit(address _sender, uint256 _amount) external onlyOwner(_sender) {
+    function deposit(address _sender, uint256 _amount) external onlyOwner(_sender) notZero(_amount) {
         // Ensure that the transaction doesn't exceed the remainingPromisedRevenue
         if (_amount > remainingPromisedRevenue) revert ExceedingDeposit(remainingPromisedRevenue, _amount);
 
@@ -178,7 +183,7 @@ contract LaLoVault is ERC20, IVault {
     }
 
     // Test purposes
-    function setTestPurposes(address _sender, uint256 _amount) external onlyOwner(_sender) {
+    function setTestPurposes(address _sender, uint256 _amount) external onlyOwner(_sender) notZero(_amount) {
         // Check if the transaction doesn't exceed the total month of current test purposes
         if (_amount > totalMonth - testPurposesAddingMonth) revert ExceedingMonths(totalMonth, _amount);
         testPurposesAddingMonth = _amount;
