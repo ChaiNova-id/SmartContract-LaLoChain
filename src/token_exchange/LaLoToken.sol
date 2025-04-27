@@ -6,11 +6,11 @@ import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 
 contract LaLoToken is ERC20, Ownable {
     constructor(
-        uint256 initialSupply
+        uint256 _initialSupply
     )
         ERC20("LaLoToken", "LLOT")
         Ownable(msg.sender)
     {
-        _mint(msg.sender, initialSupply);
+        _mint(msg.sender, _initialSupply);
     }
 }

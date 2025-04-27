@@ -26,43 +26,43 @@ contract LaLoHotelRegistry is IHotelRegistry {
     }
 
     // Implementing the interface function to check if a hotel is registered by hotelId
-    function isHotelRegistered(uint256 hotelId) external view returns (bool) {
-        return isRegisteredHotel[hotelId];
+    function isHotelRegistered(uint256 _hotelId) external view returns (bool) {
+        return isRegisteredHotel[_hotelId];
     }
 
     // Function to register a hotel
     function registerHotel(
-        string memory name,
-        string memory location,
-        uint256 tokenAmount,
-        uint256 usdcPrice,
-        uint256 totalMonth
+        string memory _name,
+        string memory _location,
+        uint256 _tokenAmount,
+        uint256 _usdcPrice,
+        uint256 _totalMonth
     ) public {
         // Check if the rate is valid
         uint256 ratio = 1e6;
-        uint256 rate = tokenAmount * ratio / usdcPrice;
+        uint256 rate = _tokenAmount * ratio / _usdcPrice;
         if (rate < ratio) revert InvalidSellingRate(
-            tokenAmount,
-            usdcPrice
+            _tokenAmount,
+            _usdcPrice
         );
 
         // Deploy a new LaLoVault for this hotel
         address vaultAddress = address(new LaLoVault(
             address(usdcToken),
             tokenFactory,
-            tokenAmount,
+            _tokenAmount,
             msg.sender,
             rate,
             ratio,
-            totalMonth,
-            tokenAmount
+            _totalMonth,
+            _tokenAmount
         ));
 
         // Create a new hotel entry
         hotels[nextHotelId] = Hotel({
             owner: msg.sender,
-            name: name,
-            location: location,
+            name: _name,
+            location: _location,
             vaultAddress: vaultAddress,
             registrationDate: block.timestamp
         });
@@ -71,14 +71,14 @@ contract LaLoHotelRegistry is IHotelRegistry {
         isRegisteredHotel[nextHotelId] = true;
 
         // Emit the HotelRegistered event
-        emit HotelRegistered(nextHotelId, name, location, vaultAddress);
+        emit HotelRegistered(nextHotelId, _name, _location, vaultAddress);
 
         // Increment the hotel ID for the next hotel
         nextHotelId++;
     }
 
     // Function to get hotel address
-    function getVaultAddress(uint256 hotelId) external view returns (address) {
-        return hotels[hotelId].vaultAddress;
+    function getVaultAddress(uint256 _hotelId) external view returns (address) {
+        return hotels[_hotelId].vaultAddress;
     }
 }
