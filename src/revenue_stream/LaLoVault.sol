@@ -34,9 +34,7 @@ contract LaLoVault is ERC20, IVault {
         uint256 _ratio,
         uint256 _totalMonth,
         uint256 _totalRevenue
-    )
-        ERC20("LaLoVault", "LLOV")
-    {
+    ) ERC20("LaLoVault", "LLOV") {
         // Deploy a new LaLoToken for this vault
         address tokenAddress = _tokenFactory.deployToken(_tokenAmount);
 
@@ -56,7 +54,7 @@ contract LaLoVault is ERC20, IVault {
     }
 
     modifier onlyOwner(address _sender) {
-        if(_sender != owner) revert NotOwner(_sender);
+        if (_sender != owner) revert NotOwner(_sender);
         _;
     }
 
@@ -97,10 +95,7 @@ contract LaLoVault is ERC20, IVault {
 
         // Check if the transfer limit is not passed
         if (_amount > transferLimit) {
-            revert InsufficientQuota(
-                transferLimit,
-                _amount
-            );
+            revert InsufficientQuota(transferLimit, _amount);
         }
 
         _;
@@ -121,10 +116,7 @@ contract LaLoVault is ERC20, IVault {
         // Check if the sender has enough usdc
         uint256 laloTokens = lloToken.balanceOf(address(this));
         if (_amount > laloTokens) {
-            revert InsufficientStock(
-                laloTokens,
-                _amount
-            );
+            revert InsufficientStock(laloTokens, _amount);
         }
 
         // Calculate LLoT to buy
@@ -133,10 +125,7 @@ contract LaLoVault is ERC20, IVault {
         // Check if there's still existing LLoT in the Vault
         uint256 vaultTokens = lloToken.balanceOf(address(this));
         if (lloT > vaultTokens) {
-            revert InsufficientStock(
-                vaultTokens,
-                lloT
-            );
+            revert InsufficientStock(vaultTokens, lloT);
         }
 
         // All validation fulfilled
@@ -147,11 +136,15 @@ contract LaLoVault is ERC20, IVault {
     }
 
     // User claiming from vault (in: x usdc => out: x usdc)
-    function withdraw(address _sender, uint256 _amount) external notZero(_amount) checkTransferLimit(_sender, _amount) {        
+    function withdraw(address _sender, uint256 _amount)
+        external
+        notZero(_amount)
+        checkTransferLimit(_sender, _amount)
+    {
         // All validation fulfilled
-        claimedRevenuesInLLoT[_sender] += _amount;  // Update the user's claim value of LLoT
+        claimedRevenuesInLLoT[_sender] += _amount; // Update the user's claim value of LLoT
         bool success = usdcToken.transfer(_sender, _amount); // Transfer USDC to the user
-        if(!success) revert TransferFailed();
+        if (!success) revert TransferFailed();
     }
 
     // Owner deposit new revenue

@@ -44,22 +44,14 @@ contract LaLoHotelRegistry is IHotelRegistry {
         // Check if the rate is valid
         uint256 ratio = 1e18;
         uint256 rate = _tokenAmount * ratio / _usdcPrice;
-        if (_usdcPrice > _tokenAmount) revert InvalidSellingRate(
-            _tokenAmount,
-            _usdcPrice
-        );
+        if (_usdcPrice > _tokenAmount) revert InvalidSellingRate(_tokenAmount, _usdcPrice);
 
         // Deploy a new LaLoVault for this hotel
-        address vaultAddress = address(new LaLoVault(
-            address(usdcToken),
-            tokenFactory,
-            _tokenAmount,
-            msg.sender,
-            rate,
-            ratio,
-            _totalMonth,
-            _tokenAmount
-        ));
+        address vaultAddress = address(
+            new LaLoVault(
+                address(usdcToken), tokenFactory, _tokenAmount, msg.sender, rate, ratio, _totalMonth, _tokenAmount
+            )
+        );
 
         // Create a new hotel entry
         hotels[nextHotelId] = Hotel({

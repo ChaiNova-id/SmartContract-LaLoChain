@@ -4,22 +4,20 @@ pragma solidity ^0.8.13;
 import {LaLoTokenFactory} from "../token_exchange/LaLoTokenFactory.sol";
 
 contract LaLoTokenAVS {
+    error NotRegisteredToken();
 
-  error NotRegisteredToken();
+    LaLoTokenFactory public factory;
 
-  LaLoTokenFactory public factory;
+    // token -> underwriter -> amount
+    mapping(address => mapping(address => uint256)) public underwritingAmounts;
 
-  // token -> underwriter -> amount
-  mapping(address => mapping(address => uint256)) public underwritingAmounts;
+    constructor(address _factory) {
+        factory = LaLoTokenFactory(_factory);
+    }
 
-  constructor(address _factory) {
-    factory = LaLoTokenFactory(_factory);
-  }
-
-   function underwrite(address token, uint256 amount) public {
-      if(!factory.tokens(token)) revert NotRegisteredToken();
-      address underwriter = msg.sender;
-      underwritingAmounts[token][underwriter] += amount;
-   }
-
+    function underwrite(address token, uint256 amount) public {
+        if (!factory.tokens(token)) revert NotRegisteredToken();
+        address underwriter = msg.sender;
+        underwritingAmounts[token][underwriter] += amount;
+    }
 }

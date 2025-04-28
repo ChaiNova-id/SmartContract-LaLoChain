@@ -25,16 +25,10 @@ contract DeployHotelSystem is Script {
         LaLoTokenFactory factory = new LaLoTokenFactory();
 
         // Deploy HotelRegistry with factory address
-        LaLoHotelRegistry registry = new LaLoHotelRegistry(
-            address(usdc),
-            address(factory)
-        );
+        LaLoHotelRegistry registry = new LaLoHotelRegistry(address(usdc), address(factory));
 
         // Deploy Tokenization with registry address
-        LaLoHotelTokenization tokenization = new LaLoHotelTokenization(
-            address(usdc),
-            address(registry)
-        );
+        LaLoHotelTokenization tokenization = new LaLoHotelTokenization(address(usdc), address(registry));
 
         // Print the addresses
         console.log("MockUSDC deployed at:", address(usdc));

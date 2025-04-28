@@ -2,10 +2,7 @@
 pragma solidity ^0.8.13;
 
 interface IHotelRegistry {
-    error InvalidSellingRate(
-        uint256 tokenAmount,
-        uint256 usdcPrice
-    );
+    error InvalidSellingRate(uint256 tokenAmount, uint256 usdcPrice);
     error HotelNotRegistered();
     error UnauthorizedHotelOwner();
     error ZeroAmount();

@@ -11,10 +11,7 @@ contract LaLoHotelTokenization is IHotelTokenization {
     IERC20 public usdcToken;
     LaLoHotelRegistry public hotelRegistry;
 
-    constructor(
-        address _usdcToken,
-        address _hotelRegistry
-    ) {
+    constructor(address _usdcToken, address _hotelRegistry) {
         usdcToken = IERC20(_usdcToken);
         hotelRegistry = LaLoHotelRegistry(_hotelRegistry);
     }
@@ -34,16 +31,9 @@ contract LaLoHotelTokenization is IHotelTokenization {
         LaLoVault vault = LaLoVault(vaultAddress);
 
         // Withdraw shares (LaLoVault will burn and send USDC)
-        vault.buyShares(
-            msg.sender,
-            _buyInUSDC
-        );
+        vault.buyShares(msg.sender, _buyInUSDC);
 
-        emit TokensBought(
-            _hotelId,
-            msg.sender,
-            _buyInUSDC
-        );
+        emit TokensBought(_hotelId, msg.sender, _buyInUSDC);
     }
 
     function withdrawUSDC(uint256 _hotelId, uint256 _withdrawInUSDC) external onlyRegisteredHotel(_hotelId) {
@@ -54,16 +44,9 @@ contract LaLoHotelTokenization is IHotelTokenization {
         LaLoVault vault = LaLoVault(vaultAddress);
 
         // Withdraw shares
-        vault.withdraw(
-            msg.sender,
-            _withdrawInUSDC
-        );
+        vault.withdraw(msg.sender, _withdrawInUSDC);
 
-        emit USDCWithdrawn(
-            _hotelId,
-            msg.sender,
-            _withdrawInUSDC
-        );
+        emit USDCWithdrawn(_hotelId, msg.sender, _withdrawInUSDC);
     }
 
     function ownerDepositUSDC(uint256 _hotelId, uint256 _depositInUSDC) external onlyRegisteredHotel(_hotelId) {
@@ -74,16 +57,9 @@ contract LaLoHotelTokenization is IHotelTokenization {
         LaLoVault vault = LaLoVault(vaultAddress);
 
         // Deposit to ault
-        vault.deposit(
-            msg.sender,
-            _depositInUSDC
-        );
+        vault.deposit(msg.sender, _depositInUSDC);
 
-        emit USDCWithdrawn(
-            _hotelId,
-            msg.sender,
-            _depositInUSDC
-        );
+        emit USDCWithdrawn(_hotelId, msg.sender, _depositInUSDC);
     }
 
     function getAvailableTokens(uint256 _hotelId) external view returns (uint256) {

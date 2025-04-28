@@ -5,12 +5,7 @@ import {ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 
 contract LaLoToken is ERC20, Ownable {
-    constructor(
-        uint256 _initialSupply
-    )
-        ERC20("LaLoToken", "LLOT")
-        Ownable()
-    {
+    constructor(uint256 _initialSupply) ERC20("LaLoToken", "LLOT") Ownable() {
         _mint(msg.sender, _initialSupply);
     }
 }
