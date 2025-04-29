@@ -24,8 +24,6 @@ contract LaLoHotelTokenization is IHotelTokenization {
     }
 
     function buyLaLoTokens(uint256 _hotelId, uint256 _buyInUSDC) external onlyRegisteredHotel(_hotelId) {
-        // Get hotel
-
         // Get the vault address associated with the hotel
         address vaultAddress = hotelRegistry.getVaultAddress(_hotelId);
 
@@ -74,6 +72,18 @@ contract LaLoHotelTokenization is IHotelTokenization {
         address vaultAddress = hotelRegistry.getVaultAddress(_hotelId);
         LaLoVault vault = LaLoVault(vaultAddress);
         return vault.getAvailableRevenues();
+    }
+
+    function getRate(uint256 _hotelId) external view returns (uint256) {
+        address vaultAddress = hotelRegistry.getVaultAddress(_hotelId);
+        LaLoVault vault = LaLoVault(vaultAddress);
+        return vault.rate();
+    }
+
+    function getAuctionEndDate(uint256 _hotelId) external view returns (uint256) {
+        address vaultAddress = hotelRegistry.getVaultAddress(_hotelId);
+        LaLoVault vault = LaLoVault(vaultAddress);
+        return vault.registrationDate() + vault.auctionDuration();
     }
 
     function getTransferLimit(uint256 _hotelId) external view returns (uint256 limit) {
