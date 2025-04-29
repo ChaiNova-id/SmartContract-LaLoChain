@@ -3,6 +3,7 @@ pragma solidity ^0.8.13;
 
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {IHotelTokenization} from "./IHotelTokenization.sol";
+import {IHotelRegistry} from "../hotel_owners/IHotelRegistry.sol";
 import {LaLoHotelRegistry} from "../hotel_owners/LaLoHotelRegistry.sol";
 import {LaLoVault} from "../revenue_stream/LaLoVault.sol";
 
@@ -15,7 +16,14 @@ contract LaLoHotelTokenization is IHotelTokenization {
         hotelRegistry = LaLoHotelRegistry(_hotelRegistry);
     }
 
-    function buyLaLoTokens(uint256 _hotelId, uint256 _buyInUSDC) external {
+    modifier onlyRegisteredHotel(uint256 hotelId) {
+        if (!hotelRegistry.isHotelRegistered(hotelId)) {
+            revert HotelNotRegistered();
+        }
+        _;
+    }
+
+    function buyLaLoTokens(uint256 _hotelId, uint256 _buyInUSDC) external onlyRegisteredHotel(_hotelId) {
         // Get the vault address associated with the hotel
         address vaultAddress = hotelRegistry.getVaultAddress(_hotelId);
 
@@ -28,7 +36,7 @@ contract LaLoHotelTokenization is IHotelTokenization {
         emit TokensBought(_hotelId, msg.sender, _buyInUSDC);
     }
 
-    function withdrawUSDC(uint256 _hotelId, uint256 _withdrawInUSDC) external {
+    function withdrawUSDC(uint256 _hotelId, uint256 _withdrawInUSDC) external onlyRegisteredHotel(_hotelId) {
         // Get the vault address associated with the hotel
         address vaultAddress = hotelRegistry.getVaultAddress(_hotelId);
 
@@ -41,7 +49,7 @@ contract LaLoHotelTokenization is IHotelTokenization {
         emit USDCWithdrawn(_hotelId, msg.sender, _withdrawInUSDC);
     }
 
-    function ownerDepositUSDC(uint256 _hotelId, uint256 _depositInUSDC) external {
+    function ownerDepositUSDC(uint256 _hotelId, uint256 _depositInUSDC) external onlyRegisteredHotel(_hotelId) {
         // Get the vault address associated with the hotel
         address vaultAddress = hotelRegistry.getVaultAddress(_hotelId);
 
@@ -51,7 +59,7 @@ contract LaLoHotelTokenization is IHotelTokenization {
         // Deposit to ault
         vault.deposit(msg.sender, _depositInUSDC);
 
-        emit USDCDeposit(_hotelId, msg.sender, _depositInUSDC);
+        emit USDCWithdrawn(_hotelId, msg.sender, _depositInUSDC);
     }
 
     function getAvailableTokens(uint256 _hotelId) external view returns (uint256) {
