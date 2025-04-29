@@ -24,6 +24,8 @@ contract LaLoHotelTokenization is IHotelTokenization {
     }
 
     function buyLaLoTokens(uint256 _hotelId, uint256 _buyInUSDC) external onlyRegisteredHotel(_hotelId) {
+        // Get hotel
+
         // Get the vault address associated with the hotel
         address vaultAddress = hotelRegistry.getVaultAddress(_hotelId);
 

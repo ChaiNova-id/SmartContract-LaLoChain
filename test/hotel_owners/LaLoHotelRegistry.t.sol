@@ -14,49 +14,46 @@ contract LaLoHotelRegistryTest is Test {
     LaLoHotelRegistry registry;
 
     string hotelName;
-    string hotelLocation;
     uint256 tokenAmount;
     uint256 totalMonths;
+    uint256 duration;
 
     function setUp() public {
-        usdc = new MockUSDC(1e6);
+        usdc = new MockUSDC(1e6, "LaLoUSDC", "LUSDC");
 
         factory = new LaLoTokenFactory();
 
         registry = new LaLoHotelRegistry(address(usdc), address(factory));
 
         hotelName = "LaLo Hotel";
-        hotelLocation = "Paris, France";
         tokenAmount = 1000;
         totalMonths = 10;
+        duration = 604_800; // 7 days in seconds
     }
 
     function testRegisterHotelZeroToken() public {
         vm.expectRevert();
-        registry.registerHotel(hotelName, hotelLocation, 0, 1000, totalMonths);
+        registry.registerHotel(hotelName, 0, 1000, totalMonths, duration);
     }
 
     function testRegisterHotelZeroPrice() public {
         vm.expectRevert();
-        registry.registerHotel(hotelName, hotelLocation, tokenAmount, 0, totalMonths);
+        registry.registerHotel(hotelName, tokenAmount, 0, totalMonths, duration);
     }
 
     function testRegisterHotelExcessPrice() public {
         vm.expectRevert();
-        registry.registerHotel(hotelName, hotelLocation, tokenAmount, 1001, totalMonths);
+        registry.registerHotel(hotelName, tokenAmount, 1001, totalMonths, duration);
     }
 
     function testRegisterHotelAndVault() public {
         // Test Hotel Registry
-        registry.registerHotel(hotelName, hotelLocation, tokenAmount, 1000, totalMonths);
+        registry.registerHotel(hotelName, tokenAmount, 1000, totalMonths, duration);
 
-        (address owner, string memory name, string memory location, address vaultAddress, uint256 registrationDate) =
-            registry.hotels(0);
+        (address owner, string memory name, address vaultAddress) = registry.hotels(0);
 
         assertEq(owner, address(this), "Owner should be the contract deployer");
         assertEq(name, hotelName, "Hotel name should match");
-        assertEq(location, hotelLocation, "Hotel location should match");
-        assertEq(registrationDate, block.timestamp, "Registration date should match");
 
         assertTrue(registry.isHotelRegistered(0), "Hotel should be registered");
 
@@ -181,6 +178,10 @@ contract LaLoHotelRegistryTest is Test {
 
         // Alice check current USDC
         assertEq(usdc.balanceOf(alice), 4, "Alice's balance must be updated to 4");
+
+        // Expect fail for buying after duration passed
+        vm.expectRevert();
+        vault.buyShares(alice, 4);
 
         // Alice check withdrawn from vault
         assertEq(vault.claimedRevenuesInLLoT(alice), 4, "Alice's withdrawn must be updated to 4");

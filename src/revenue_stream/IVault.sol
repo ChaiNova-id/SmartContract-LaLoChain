@@ -7,6 +7,7 @@ interface IVault {
     error InsufficientStock(uint256 stock, uint256 amount);
     error ExceedingDeposit(uint256 limit, uint256 deposit);
     error ExceedingMonths(uint256 totalMonth, uint256 amount);
+    error ExceedingAuctionDuration(uint256 end, uint256 current);
     error TransferFailed();
     error ZeroAmount();
     error NotOwner(address sender);

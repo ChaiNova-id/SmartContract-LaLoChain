@@ -33,10 +33,10 @@ contract LaLoHotelRegistry is IHotelRegistry {
     // Function to register a hotel
     function registerHotel(
         string memory _name,
-        string memory _location,
         uint256 _tokenAmount,
         uint256 _usdcPrice,
-        uint256 _totalMonth
+        uint256 _totalMonth,
+        uint256 _auctionDuration
     ) public {
         // Ignore if either tokenAmount or usdcPrice is zero
         if (_tokenAmount == 0 || _usdcPrice == 0) revert ZeroAmount();
@@ -49,24 +49,26 @@ contract LaLoHotelRegistry is IHotelRegistry {
         // Deploy a new LaLoVault for this hotel
         address vaultAddress = address(
             new LaLoVault(
-                address(usdcToken), tokenFactory, _tokenAmount, msg.sender, rate, ratio, _totalMonth, _tokenAmount
+                address(usdcToken),
+                tokenFactory,
+                _tokenAmount,
+                msg.sender,
+                rate,
+                ratio,
+                _totalMonth,
+                _tokenAmount,
+                _auctionDuration
             )
         );
 
         // Create a new hotel entry
-        hotels[nextHotelId] = Hotel({
-            owner: msg.sender,
-            name: _name,
-            location: _location,
-            vaultAddress: vaultAddress,
-            registrationDate: block.timestamp
-        });
+        hotels[nextHotelId] = Hotel({owner: msg.sender, name: _name, vaultAddress: vaultAddress});
 
         // Mark the hotel as registered
         isRegisteredHotel[nextHotelId] = true;
 
         // Emit the HotelRegistered event
-        emit HotelRegistered(nextHotelId, _name, _location, vaultAddress);
+        emit HotelRegistered(nextHotelId, _name, vaultAddress);
 
         // Increment the hotel ID for the next hotel
         nextHotelId++;

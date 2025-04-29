@@ -19,6 +19,7 @@ contract LaLoVault is ERC20, IVault {
 
     // Hotel setup
     uint256 public immutable registrationDate;
+    uint256 public immutable auctionDuration;
     uint256 public immutable totalRevenue;
     uint256 public immutable totalMonth;
     uint256 public testPurposesAddingMonth;
@@ -32,7 +33,8 @@ contract LaLoVault is ERC20, IVault {
         uint256 _rate,
         uint256 _ratio,
         uint256 _totalMonth,
-        uint256 _totalRevenue
+        uint256 _totalRevenue,
+        uint256 _auctionDuration
     ) ERC20("LaLoVault", "LLOV") {
         // Deploy a new LaLoToken for this vault
         address tokenAddress = _tokenFactory.deployToken(_tokenAmount);
@@ -47,6 +49,7 @@ contract LaLoVault is ERC20, IVault {
         registrationDate = block.timestamp;
         promisedRevenue = _tokenAmount;
         remainingPromisedRevenue = _tokenAmount;
+        auctionDuration = _auctionDuration;
 
         // Test only
         testPurposesAddingMonth = 0;
@@ -112,6 +115,10 @@ contract LaLoVault is ERC20, IVault {
 
     // Buying shares (in: x usdc => out; (x * rate) lloToken)
     function buyShares(address _sender, uint256 _amount) external notZero(_amount) {
+        // Reject if auction duration has passed
+        uint256 auctionEnd = registrationDate + auctionDuration;
+        if (auctionEnd < block.timestamp) revert ExceedingAuctionDuration(auctionEnd, block.timestamp);
+
         // Check if the sender has enough usdc
         uint256 laloTokens = lloToken.balanceOf(address(this));
         if (_amount > laloTokens) {

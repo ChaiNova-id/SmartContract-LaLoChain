@@ -14,12 +14,12 @@ contract LaLoHotelTokenizationTest is Test {
     LaLoHotelTokenization tokenization;
 
     string hotelName;
-    string hotelLocation;
     uint256 tokenAmount;
     uint256 totalMonths;
+    uint256 duration;
 
     function setUp() public {
-        usdc = new MockUSDC(1e6);
+        usdc = new MockUSDC(1e6, "LaLoUSDC", "LUSDC");
 
         factory = new LaLoTokenFactory();
 
@@ -28,15 +28,15 @@ contract LaLoHotelTokenizationTest is Test {
         tokenization = new LaLoHotelTokenization(address(usdc), address(registry));
 
         hotelName = "LaLo Hotel";
-        hotelLocation = "Paris, France";
         tokenAmount = 1000;
         totalMonths = 10;
+        duration = 604_800; // 7 days in seconds
     }
 
     function testTokenization() public {
-        registry.registerHotel(hotelName, hotelLocation, tokenAmount, 1000, totalMonths);
+        registry.registerHotel(hotelName, tokenAmount, 1000, totalMonths, duration);
 
-        (,,, address vaultAddress,) = registry.hotels(0);
+        (,, address vaultAddress) = registry.hotels(0);
 
         // Buying shares case
         address alice = vm.addr(0x1);
@@ -118,6 +118,10 @@ contract LaLoHotelTokenizationTest is Test {
 
         // Alice try withdraw 4 USDC
         tokenization.withdrawUSDC(0, 4);
+
+        // Expect fail for buying after duration passed
+        vm.expectRevert();
+        tokenization.buyLaLoTokens(0, 4);
 
         // Alice check current USDC
         assertEq(usdc.balanceOf(alice), 4, "Alice's balance must be updated to 4");

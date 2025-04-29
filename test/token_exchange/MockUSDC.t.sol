@@ -8,7 +8,7 @@ contract MockUSDCTest is Test {
     MockUSDC usdc;
 
     function setUp() public {
-        usdc = new MockUSDC(1e6);
+        usdc = new MockUSDC(1e6, "LaLoUSDC", "LUSDC");
     }
 
     function testInitialSupply() public view {
