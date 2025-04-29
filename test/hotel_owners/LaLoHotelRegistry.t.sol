@@ -83,6 +83,8 @@ contract LaLoHotelRegistryTest is Test {
 
         assertEq(vault.registrationDate(), block.timestamp, "Vault registration date should match");
 
+        assertEq(vault.auctionDuration(), duration, "Vault auction duration should match");
+
         assertEq(vault.getAvailableTokens(), tokenAmount, "Vault initial available tokens should match");
 
         assertEq(vault.getAvailableRevenues(), 0, "Vault available revenues should be 0");

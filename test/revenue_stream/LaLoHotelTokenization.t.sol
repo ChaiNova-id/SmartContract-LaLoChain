@@ -38,6 +38,12 @@ contract LaLoHotelTokenizationTest is Test {
 
         (,, address vaultAddress) = registry.hotels(0);
 
+        // Check getRate
+        assertEq(tokenization.getRate(0), 1000 * 1e18 / tokenAmount, "Rate should be 1000 USDC per 1 LLoT");
+
+        // Check auctionDurartion
+        assertEq(tokenization.getAuctionEndDate(0), block.timestamp + duration, "Auction duration should match");
+
         // Buying shares case
         address alice = vm.addr(0x1);
         usdc.transfer(alice, 100);
