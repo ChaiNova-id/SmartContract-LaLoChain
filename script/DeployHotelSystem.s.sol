@@ -19,7 +19,7 @@ contract DeployHotelSystem is Script {
         vm.setNonce(sender, correctNonce);
 
         // Deploy Mock USDC
-        MockUSDC usdc = new MockUSDC(1e32);
+        MockUSDC usdc = new MockUSDC(1e32, "LaLoUSDC", "LUSDC");
 
         // Deploy factory
         LaLoTokenFactory factory = new LaLoTokenFactory();
