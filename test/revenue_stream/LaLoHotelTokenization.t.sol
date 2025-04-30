@@ -39,7 +39,9 @@ contract LaLoHotelTokenizationTest is Test {
         (,, address vaultAddress) = registry.hotels(0);
 
         // Check getRate
-        assertEq(tokenization.getRate(0), 1000 * 1e18 / tokenAmount, "Rate should be 1000 USDC per 1 LLoT");
+        uint256 defaultRatio = 1e18;
+        assertEq(tokenization.getRatio(0), defaultRatio, "Ratio should be 1e18");
+        assertEq(tokenization.getRate(0), 1000 * defaultRatio / tokenAmount, "Rate should be 1000 USDC per 1 LLoT");
 
         // Check auctionDurartion
         assertEq(tokenization.getAuctionEndDate(0), block.timestamp + duration, "Auction duration should match");
@@ -110,7 +112,7 @@ contract LaLoHotelTokenizationTest is Test {
         // Check available revenues
         assertEq(tokenization.getAvailableRevenues(0), 90, "Available revenues should match");
 
-        assertEq(tokenization.getRemainingPromisedRevenues(0), 910, "Available revenues should match");
+        assertEq(tokenization.getRemainingPromisedRevenues(0), 910, "Remaining promised revenues should match");
 
         // Alice's transfer limit must be still zero
         vm.startPrank(alice);

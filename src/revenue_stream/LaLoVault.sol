@@ -181,16 +181,6 @@ contract LaLoVault is ERC20, IVault {
         return usdcToken.balanceOf(address(this));
     }
 
-    // Get promised revenues
-    function getPromisedRevenues() external view returns (uint256 promisedRev) {
-        return promisedRevenue;
-    }
-
-    // Get promised revenues
-    function getRemainingPromisedRevenues() external view returns (uint256 remPromisedRev) {
-        return remainingPromisedRevenue;
-    }
-
     // Get claimed revenues
     function getClaimedRevenues(address _sender) external view returns (uint256 claimedRev) {
         return claimedRevenuesInLLoT[_sender];
@@ -203,7 +193,12 @@ contract LaLoVault is ERC20, IVault {
         testPurposesAddingMonth = _amount;
     }
 
-    function getMonths() external view returns (uint256 month) {
-        return testPurposesAddingMonth;
+    function getMonths() external view returns (uint256 months) {
+        // Get the time passed
+        uint256 monthsPassed = (block.timestamp - registrationDate) / 2_592_000; // 30 days
+
+        // Test purposes
+        monthsPassed += testPurposesAddingMonth;
+        return monthsPassed;
     }
 }

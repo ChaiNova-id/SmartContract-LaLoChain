@@ -73,9 +73,10 @@ contract LaLoHotelRegistryTest is Test {
         assertEq(token.totalSupply(), tokenAmount, "Token total supply should match");
         assertEq(token.decimals(), 18, "Token should have 18 decimals");
 
+        uint256 defaultRatio = 1e18;
         assertEq(vault.owner(), address(this), "Vault owner should match registry owner");
-        assertEq(vault.ratio(), 1e18, "Vault ratio should be 1e18");
-        assertEq(vault.rate(), tokenAmount * 1e18 / 1000, "Vault rate should match");
+        assertEq(vault.ratio(), defaultRatio, "Vault ratio should be 1e18");
+        assertEq(vault.rate(), tokenAmount * defaultRatio / 1000, "Vault rate should match");
 
         assertEq(vault.totalMonth(), totalMonths, "Vault total months should match");
 
@@ -164,7 +165,7 @@ contract LaLoHotelRegistryTest is Test {
         // Check available revenues
         assertEq(vault.getAvailableRevenues(), 90, "Available revenues should match");
 
-        assertEq(vault.getRemainingPromisedRevenues(), 910, "Available revenues should match");
+        assertEq(vault.remainingPromisedRevenue(), 910, "Remaining promised revenues should match");
 
         // Alice's transfer limit must be still zero
         assertEq(vault.getTransferLimit(alice), 0, "Transfer limit must be still 0 due to unchanged month");
@@ -240,6 +241,6 @@ contract LaLoHotelRegistryTest is Test {
 
         assertEq(vault.getAvailableRevenues(), 900, "Available revenues should lose 46 + 4 + 50 USDC");
 
-        assertEq(vault.getRemainingPromisedRevenues(), 0, "Remaining promised revenue must be 0");
+        assertEq(vault.remainingPromisedRevenue(), 0, "Remaining promised revenue must be 0");
     }
 }
