@@ -6,6 +6,7 @@ import {MockUSDC} from "../src/token_exchange/MockUSDC.sol";
 import {LaLoTokenFactory} from "../src/token_exchange/LaLoTokenFactory.sol";
 import {LaLoHotelRegistry} from "../src/hotel_owners/LaLoHotelRegistry.sol";
 import {LaLoHotelTokenization} from "../src/revenue_stream/LaLoHotelTokenization.sol";
+import {LaLoUnderwriterSystem} from "../src/underwriter/LaLoUnderwriterSystem.sol";
 
 contract DeployHotelSystem is Script {
     function setUp() public {}
@@ -31,11 +32,19 @@ contract DeployHotelSystem is Script {
         // Deploy Tokenization with registry address
         LaLoHotelTokenization tokenization = new LaLoHotelTokenization(address(usdc), address(registry));
 
+        // Deploy Underwriter system
+        LaLoUnderwriterSystem underwriterSystem = new LaLoUnderwriterSystem(address(usdc), address(registry));
+
+        // Set the underwriter system in the registry
+        registry.setUnderwriterSystem(address(underwriterSystem));
+
         // Print the addresses
         console.log("MockUSDC deployed at:", address(usdc));
         console.log("LaLoTokenFactory deployed at:", address(factory));
         console.log("HotelRegistry deployed at:", address(registry));
         console.log("HotelTokenization deployed at:", address(tokenization));
+        console.log("UnderwriterSystem deployed at:", address(underwriterSystem));
+        console.log("Note: LaLoHotelAVS will be deployed per hotel during registration.");
 
         vm.stopBroadcast();
     }
