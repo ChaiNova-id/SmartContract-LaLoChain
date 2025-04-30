@@ -64,6 +64,8 @@ contract LaLoHotelRegistry is IHotelRegistry {
         // Create a new hotel entry
         hotels[nextHotelId] = Hotel({owner: msg.sender, name: _name, vaultAddress: vaultAddress});
 
+
+
         // Mark the hotel as registered
         isRegisteredHotel[nextHotelId] = true;
 
