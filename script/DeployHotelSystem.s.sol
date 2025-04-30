@@ -11,12 +11,13 @@ contract DeployHotelSystem is Script {
     function setUp() public {}
 
     function run() external {
-        uint64 correctNonce = 33; // Set the correct nonce based on the cast command
-
         address sender = vm.envAddress("SENDER_ADDRESS");
 
+        // Get current nonce dynamically
+        uint64 nonce = vm.getNonce(sender);
+
         vm.startBroadcast();
-        vm.setNonce(sender, correctNonce);
+        vm.setNonce(sender, nonce);
 
         // Deploy Mock USDC
         MockUSDC usdc = new MockUSDC(1e32, "LaLoUSDC", "LUSDC");

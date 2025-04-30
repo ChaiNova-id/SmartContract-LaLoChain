@@ -12,14 +12,13 @@ contract LaLoHotelRegistryWithAVS is LaLoHotelRegistry {
     LaLoAVS public avsSystem;
     LaLoUnderwriterRegistry public underwriterRegistry;
 
-    event HotelRegisteredWithAVS(uint256 indexed hotelId, uint256 revenueStake, uint256 saleStake, uint256 underwriterFee);
+    event HotelRegisteredWithAVS(
+        uint256 indexed hotelId, uint256 revenueStake, uint256 saleStake, uint256 underwriterFee
+    );
 
-    constructor(
-        address _usdcToken,
-        address _tokenFactory,
-        address _avsSystem,
-        address _underwriterRegistry
-    ) LaLoHotelRegistry(_usdcToken, _tokenFactory) {
+    constructor(address _usdcToken, address _tokenFactory, address _avsSystem, address _underwriterRegistry)
+        LaLoHotelRegistry(_usdcToken, _tokenFactory)
+    {
         avsSystem = LaLoAVS(_avsSystem);
         underwriterRegistry = LaLoUnderwriterRegistry(_underwriterRegistry);
     }
@@ -47,13 +46,13 @@ contract LaLoHotelRegistryWithAVS is LaLoHotelRegistry {
     ) public {
         // First register the hotel normally
         super.registerHotel(_name, _tokenAmount, _usdcPrice, _totalMonth, _auctionDuration);
-        
+
         // Get the hotel ID (it was incremented in the registerHotel function)
         uint256 hotelId = nextHotelId - 1;
-        
+
         // Create AVS for this hotel
         avsSystem.createAVS(hotelId, _requiredRevenueStake, _requiredSaleStake, _underwriterFee);
-        
+
         emit HotelRegisteredWithAVS(hotelId, _requiredRevenueStake, _requiredSaleStake, _underwriterFee);
     }
 
